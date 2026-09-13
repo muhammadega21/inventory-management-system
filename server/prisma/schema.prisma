@@ -1,0 +1,184 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StockType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  role UserRole @default(STAFF)
+  name String
+  email String @unique
+  password String
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  StockTransaction StockTransaction[]
+
+  @@map("users")
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String?
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  categoryId Int @map("category_id")
+  name String
+  sku String @unique
+  unit String
+  minimum_stock Int
+  description String?
+  image String?
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict) // Restrict digunakan agar tidak bisa menghapus kategori jika masih ada produk yang terkait
+
+  Inventory Inventory[]
+  StockTransactionItem StockTransactionItem[]
+  StockMovement StockMovement[]
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Supplier {
+  id Int @id @default(autoincrement())
+  name String
+  code String @unique
+  contact_person String
+  phone String
+  email String
+  address String
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  StockTransaction StockTransaction[]
+
+  @@map("suppliers")
+}
+
+model Warehouse {
+  id Int @id @default(autoincrement())
+  name String
+  code String @unique
+  location String
+  description String?
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Inventory Inventory[]
+  StockTransaction StockTransaction[]
+  StockMovement StockMovement[]
+
+  @@map("warehouses")
+}
+
+model Inventory {
+  id Int @id @default(autoincrement())
+  productId Int @map("product_id")
+  warehouseId Int @map("warehouse_id")
+  quantity Int @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  Warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, warehouseId])
+  @@map("inventories")
+}
+
+model StockTransaction {
+  id Int @id @default(autoincrement())
+  transaction_number String @unique
+  type StockType
+  warehouseId Int @map("warehouse_id")
+  supplierId Int? @map("supplier_id")
+  userId Int @map("user_id")
+  notes String?
+  transaction_date DateTime
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  Supplier Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull) // SetNull digunakan agar jika supplier dihapus, transaksi tetap ada namun supplierId menjadi null
+  User User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  StockTransactionItem StockTransactionItem[]
+  StockMovement StockMovement[]
+
+  @@index([warehouseId, transaction_date])
+  @@index([supplierId])
+  @@index([userId])
+  @@index([type, transaction_date])
+  @@map("stock_transactions")
+}
+
+model StockTransactionItem {
+  id Int @id @default(autoincrement())
+  transactionId Int @map("transaction_id")
+  productId Int @map("product_id")
+  quantity Int
+
+  Transaction StockTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([transactionId, productId])
+  @@map("stock_transaction_items")
+}
+model StockMovement {
+  id Int @id @default(autoincrement())
+  productId Int @map("product_id")
+  warehouseId Int @map("warehouse_id")
+  transactionId Int @map("transaction_id")
+  type StockType
+  quantity Int
+  quantity_before Int
+  quantity_after Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  Product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  Warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  Transaction StockTransaction @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+
+  @@index([productId, warehouseId, createdAt])
+  @@index([transactionId])
+  @@map("stock_movements")
+}
+
