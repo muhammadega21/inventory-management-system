@@ -1,0 +1,36 @@
+@baseUrl = http://localhost:3000/api
+
+### get all warehouses
+GET {{baseUrl}}/warehouses
+Content-Type: application/json
+
+### get warehouse by id
+GET {{baseUrl}}/warehouses/1
+Content-Type: application/json
+
+### create warehouse
+POST {{baseUrl}}/warehouses
+Content-Type: application/json
+
+{
+  "name": "Gudang Padang",
+  "city": "Padang",
+  "address": "Jl. Bunda Raya No. 4, Ulak Karang Utara, Padang",
+  "description": "Gudang utama untuk penyimpanan dan distribusi barang",
+  "is_active": true
+}
+
+### update warehouse
+PATCH {{baseUrl}}/warehouses/1
+Content-Type: application/json
+
+{
+    "name": "Go Air Warehouse Update",
+    "city": "Jakarta",
+    "address": "Jl. Pancoran No. 1, Jakarta",
+    "is_active": true
+}
+
+### delete warehouse
+DELETE {{baseUrl}}/warehouses/4
+Content-Type: application/json

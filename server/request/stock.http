@@ -1,0 +1,169 @@
+@baseUrl = http://localhost:3000/api
+@now = {{$datetime iso8601}}
+
+### stock movements
+GET {{baseUrl}}/stock/movements?page=1&limit=10&sortBy=createdAt&sortOrder=desc
+
+### stock movement by id
+GET {{baseUrl}}/stock/movements/1
+
+### Stock In - 1 Product
+POST {{baseUrl}}/stock/in
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "supplier_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Penerimaan barang dari supplier",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 50
+    }
+  ]
+}
+
+
+### Stock In - Multiple Products
+POST {{baseUrl}}/stock/in
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "supplier_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Penerimaan beberapa produk",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 50
+    },
+    {
+      "product_id": 2,
+      "quantity": 30
+    }
+  ]
+}
+
+
+### Stock In - Tanpa Supplier
+POST {{baseUrl}}/stock/in
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "notes": "Penerimaan barang tanpa supplier",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 25
+    }
+  ]
+}
+
+### Stock Out - 1 Product
+POST {{baseUrl}}/stock/out
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Pengeluaran barang untuk operasional",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 20
+    }
+  ]
+}
+
+
+### Stock Out - Multiple Products
+POST {{baseUrl}}/stock/out
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Pengeluaran beberapa produk",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 10
+    },
+    {
+      "product_id": 2,
+      "quantity": 5
+    }
+  ]
+}
+
+
+### Stock Out - Test Stock Tidak Cukup
+POST {{baseUrl}}/stock/out
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "notes": "Test insufficient stock",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 999999
+    }
+  ]
+}
+
+### Adjustment - 1 Product
+POST {{baseUrl}}/stock/adjustment
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Penyesuaian hasil stock opname",
+  "items": [
+    {
+      "product_id": 1,
+      "physical_quantity": 117
+    }
+  ]
+}
+
+
+### Adjustment - Multiple Products
+POST {{baseUrl}}/stock/adjustment
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "transaction_date": "{{now}}",
+  "notes": "Stock opname beberapa produk",
+  "items": [
+    {
+      "product_id": 1,
+      "physical_quantity": 117
+    },
+    {
+      "product_id": 2,
+      "physical_quantity": 45
+    }
+  ]
+}
+
+
+### Adjustment - Stock Menjadi 0
+POST {{baseUrl}}/stock/adjustment
+Content-Type: application/json
+
+{
+  "warehouse_id": 1,
+  "notes": "Produk habis berdasarkan stock opname",
+  "items": [
+    {
+      "product_id": 1,
+      "physical_quantity": 0
+    }
+  ]
+}

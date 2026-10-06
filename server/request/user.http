@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:3000/api
+
+### get all users
+GET {{baseUrl}}/users
+Content-Type: application/json
+
+### get user by id
+GET {{baseUrl}}/users/4
+Content-Type: application/json
+
+### create user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Staff 1",
+  "email": "staff1@gmail.com",
+  "password": "password",
+  "role": "STAFF",
+  "is_active": true
+}
+
+### update user
+PATCH {{baseUrl}}/users/7
+Content-Type: application/json
+
+# {
+#   "name": "test update",
+#   "email": "test@gmail.com",
+#   "password": "password",
+#   "role": "STAFF",
+#   "is_active": true
+# }
+
+{
+  "name": "test update"
+}
+
+### delete user
+DELETE {{baseUrl}}/users/7
+Content-Type: application/json

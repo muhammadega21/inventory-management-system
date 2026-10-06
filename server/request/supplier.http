@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:3000/api
+
+### get all suppliers
+GET {{baseUrl}}/suppliers
+Content-Type: application/json
+
+### get supplier by id
+GET {{baseUrl}}/suppliers/1
+Content-Type: application/json
+
+### create supplier
+POST {{baseUrl}}/suppliers
+Content-Type: application/json
+
+{
+  "name": "Go Air",
+  "contact_person": "John Doe",
+  "phone": "081234567890",
+  "email": "go-air@gmail.com",
+  "city": "Jakarta",
+  "address": "Jl. Pancoran No. 1, Jakarta",
+  "is_active": true
+}
+
+### update supplier
+PATCH {{baseUrl}}/suppliers/2
+Content-Type: application/json
+
+{
+  "name": "Go Air Update",
+  "contact_person": "John Doe",
+  "phone": "081234567890",
+  "email": "go-air@gmail.com",
+  "city": "Jakarta",
+  "address": "Jl. Pancoran No. 1, Jakarta",
+  "is_active": true
+}
+
+### delete supplier
+DELETE {{baseUrl}}/suppliers/4
+Content-Type: application/json

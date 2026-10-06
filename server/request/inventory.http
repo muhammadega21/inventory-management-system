@@ -1,0 +1,9 @@
+@baseUrl = http://localhost:3000/api
+
+### get all inventories
+GET {{baseUrl}}/inventory
+Content-Type: application/json
+
+### get inventory by id
+GET {{baseUrl}}/inventory/1
+Content-Type: application/json
