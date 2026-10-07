@@ -9,5 +9,5 @@
 }
 
 body {
-  @apply bg-[#eff4ff];
+  @apply bg-[#eff4ff] text-[#1E293B];
 }
