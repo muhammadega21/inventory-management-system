@@ -1,56 +1,126 @@
-import React from "react";
+import {
+  ArrowLeftRight,
+  ChartNoAxesColumn,
+  Layers,
+  LayoutDashboard,
+  Package,
+  Tag,
+  Truck,
+  UsersRound,
+  Warehouse,
+} from "lucide-react";
+import { NavLink } from "react-router";
 
 const Sidebar = () => {
   return (
     <ul className="menu w-full grow">
-      {/* List item */}
-      <li className="">
-        <button
-          className="hover:bg-primary hover:text-primary-content"
-          data-tip="Homepage"
+      {/* Main */}
+
+      <span className="uppercase opacity-60 px-3 my-3 text-xs">Main</span>
+      <li className="mb-1">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
         >
-          {/* Home icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            fill="none"
-            stroke="currentColor"
-            className="my-1.5 inline-block size-4"
-          >
-            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
-            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          </svg>
-          <span className="">Homepage</span>
-        </button>
+          <LayoutDashboard size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Dashboard</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/products"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <Package size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Products</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/inventories"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <Layers size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Inventory</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/stock-movements"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <ArrowLeftRight size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Stock Movements</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/reports"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <ChartNoAxesColumn size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Reports</span>
+        </NavLink>
       </li>
 
-      {/* List item */}
-      <li>
-        <button
-          className="hover:bg-primary hover:text-primary-content"
-          data-tip="Settings"
+      {/* Master */}
+
+      <span className="uppercase opacity-60 px-3 my-3 text-xs">
+        Master Data
+      </span>
+      <li className="my-2">
+        <NavLink
+          to="/categories"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
         >
-          {/* Settings icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            fill="none"
-            stroke="currentColor"
-            className="my-1.5 inline-block size-4"
-          >
-            <path d="M20 7h-9"></path>
-            <path d="M14 17H5"></path>
-            <circle cx="17" cy="17" r="3"></circle>
-            <circle cx="7" cy="7" r="3"></circle>
-          </svg>
-          <span className="">Settings</span>
-        </button>
+          <Tag size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Categories</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/suppliers"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <Truck size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Suppliers</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/warehouses"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <Warehouse size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Warehouses</span>
+        </NavLink>
+      </li>
+      <li className="mb-1">
+        <NavLink
+          to="/users"
+          className={({ isActive }) =>
+            `${isActive ? " bg-primary text-primary-content" : "hover:bg-primary hover:text-primary-content"}`
+          }
+        >
+          <UsersRound size={18} className="my-1.5 inline-block size-4" />
+          <span className="text-sm">Users</span>
+        </NavLink>
       </li>
     </ul>
   );
