@@ -13,25 +13,3 @@
 body {
   @apply bg-[#eff4ff] text-[#1E293B];
 }
-
-@layer components {
-  .page-hero {
-    @apply flex gap-3 justify-between items-center border-b border-gray-300 pb-3;
-
-    .title {
-      @apply w-[70%];
-    }
-
-    .action {
-      @apply w-[30%] justify-end;
-    }
-
-    h1 {
-      @apply text-2xl font-bold;
-    }
-
-    p {
-      @apply text-sm text-gray-700;
-    }
-  }
-}

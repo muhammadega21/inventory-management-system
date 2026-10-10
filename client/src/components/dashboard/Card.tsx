@@ -3,10 +3,11 @@ import type { LucideIcon } from "lucide-react";
 
 interface CardProps {
   title: string;
-  description: string;
+  description?: string;
   value: string | number;
   valueColor?: string;
-  valueUnit: string;
+  sideText?: string;
+  sideTextClass?: string;
   icon: LucideIcon;
   iconColor?: string;
   children?: ReactNode;
@@ -21,7 +22,8 @@ const Card = ({
   description,
   value,
   valueColor,
-  valueUnit,
+  sideText,
+  sideTextClass,
   icon: Icon,
   iconColor,
   children,
@@ -42,8 +44,10 @@ const Card = ({
         <div>
           <p className={`text-4xl font-bold ${valueColor ?? ""}`}>
             {typeof value === "number" ? value.toLocaleString("id-ID") : value}
-            <span className="text-sm ms-2 text-gray-600 font-semibold">
-              {valueUnit}
+            <span
+              className={`text-sm ms-2 text-gray-600 font-semibold ${sideTextClass ?? ""}`}
+            >
+              {sideText}
             </span>
           </p>
           <span className="mt-2 text-gray-700">{description}</span>

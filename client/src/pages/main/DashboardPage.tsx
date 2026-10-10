@@ -12,38 +12,34 @@ import {
 import { Link } from "react-router";
 import Card from "../../components/dashboard/Card";
 import { BarChart } from "../../components/chart/BarChart";
+import PageHeader from "../../components/dashboard/PageHeader";
+import { breadcrumbs } from "../../utils/breadcrumbs";
 
 const DashboardPage = () => {
   return (
     <div>
-      <div className="page-hero">
-        <div className="title">
-          <h1>Dashboard</h1>
-          <p>
-            Ringkasan operasional stok fisik dan pergerakan mutasi lintas gudang
-            secara realtime.
-          </p>
-        </div>
-        <div className="action flex items-center gap-3">
-          <label className="text-sm">Fasilitas:</label>
-          <select
-            defaultValue="Pick a color"
-            className="select select-sm w-full"
-          >
-            <option>Semua Gudang</option>
-            <option>Gudang 1</option>
-            <option>Gudang 2</option>
-            <option>Gudang 3</option>
-          </select>
-        </div>
-      </div>
+      {/* Page Hero */}
+      <PageHeader
+        title="Dashboard"
+        description="Ringkasan operasional stok fisik dan pergerakan mutasi lintas gudang secara realtime."
+        breadcrumbs={breadcrumbs.dashboard}
+      >
+        <label className="text-sm">Fasilitas:</label>
+
+        <select defaultValue="all" className="select select-sm w-full">
+          <option value="all">Semua Gudang</option>
+          <option value="1">Gudang 1</option>
+          <option value="2">Gudang 2</option>
+          <option value="3">Gudang 3</option>
+        </select>
+      </PageHeader>
       <div className="content mt-6">
         {/* Cards */}
         <div className="grid grid-cols-3 gap-3">
           <Card
             title="Total Produk"
             value={1248}
-            valueUnit="SKU"
+            sideText="SKU"
             description="Master Data terdaftar aktif"
             icon={Shapes}
           >
@@ -57,7 +53,7 @@ const DashboardPage = () => {
           <Card
             title="Total Stok Fisik"
             value={84320}
-            valueUnit="Unit"
+            sideText="Unit"
             description="Di 4 fasilitas gudang aktif"
             icon={ClipboardCheck}
             iconColor="text-success"
@@ -71,7 +67,7 @@ const DashboardPage = () => {
             title="Stok Menipis"
             value={86}
             valueColor="text-error"
-            valueUnit="SKU-Lokasi"
+            sideText="SKU-Lokasi"
             description="Stok fisik &le; Batas Maksimum"
             icon={CircleAlert}
             iconColor="text-error"
@@ -86,7 +82,7 @@ const DashboardPage = () => {
           <Card
             title="Transaksi Hari Ini"
             value={142}
-            valueUnit="Mutasi"
+            sideText="Transaksi"
             description="Tercatat hari ini"
             icon={ArrowLeftRight}
             iconColor="text-warning"
@@ -109,7 +105,7 @@ const DashboardPage = () => {
             <div className="mb-4">
               <div className="flex items-center gap-4 ">
                 <h2 className="text-xl font-semibold">
-                  Aktivitas Mutasi Stok 7 Hari Terakhir
+                  Aktivitas Transaksi Stok 7 Hari Terakhir
                 </h2>
                 <div className="flex items-center gap-4">
                   <div className="flex gap-2 items-center">

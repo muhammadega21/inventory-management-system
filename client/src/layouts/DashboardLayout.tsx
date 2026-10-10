@@ -11,7 +11,7 @@ const DashboardLayout = () => {
         {/* Navbar */}
         <Navbar />
         {/* Page content here */}
-        <div className="p-6">
+        <div className="py-4 px-6">
           <Outlet />
         </div>
       </div>
