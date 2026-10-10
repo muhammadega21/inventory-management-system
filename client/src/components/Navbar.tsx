@@ -2,7 +2,7 @@ import { Bell, ChevronDown, Cog, LogOut, User } from "lucide-react";
 
 const Navbar = () => {
   return (
-    <nav className="navbar w-full h-16 bg-white border-b border-gray-200 shadow-xs flex justify-end px-4">
+    <nav className="navbar w-full h-16 bg-white border-b border-gray-200 shadow-xs flex justify-end px-6">
       <Bell size={18} className="opacity-80" />
       <div className="w-px h-6 bg-gray-200 mx-4"></div>
       <div className="">
