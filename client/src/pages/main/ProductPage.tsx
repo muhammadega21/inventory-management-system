@@ -1,8 +1,11 @@
 import {
   Archive,
   ArchiveX,
+  CircleMinus,
+  Eye,
   FunnelX,
   ListSortDescending,
+  Pen,
   Plus,
   ShoppingCart,
   TriangleAlert,
@@ -10,6 +13,7 @@ import {
 import PageHeader from "../../components/dashboard/PageHeader";
 import { breadcrumbs } from "../../utils/breadcrumbs";
 import Card from "../../components/dashboard/Card";
+import { Link } from "react-router";
 
 const ProductPage = () => {
   return (
@@ -59,7 +63,7 @@ const ProductPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="mt-4 p-4 bg-white flex items-center gap-4 rounded">
+      <div className="mt-4 p-4 bg-white flex items-center gap-4 rounded shadow">
         <div className="w-96">
           <label className="input">
             <svg
@@ -94,9 +98,8 @@ const ProductPage = () => {
         </select>
         <select defaultValue="Semua Status" className="select">
           <option>Semua Status</option>
-          <option>Status 1</option>
-          <option>Status 2</option>
-          <option>Status 3</option>
+          <option>Active</option>
+          <option>Inactive</option>
         </select>
         <button className="btn bg-gray-50 text-black border-[#e5e5e5]">
           Nama Produk (A-Z) <ListSortDescending size={14} />
@@ -114,36 +117,174 @@ const ProductPage = () => {
             {/* head */}
             <thead>
               <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
+                <th>Produk</th>
+                <th>Kategori</th>
+                <th>Satuan (Unit)</th>
+                <th>Min. Stok</th>
+                <th>Status</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {/* row 1 */}
               <tr>
-                <th>1</th>
-                <td>Cy Ganderton</td>
-                <td>Quality Control Specialist</td>
-                <td>Blue</td>
+                <th>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="https://images.pexels.com/photos/20510003/pexels-photo-20510003.jpeg"
+                      alt="Logitech MX Master 3S"
+                      className="w-10 h-10 min-w-10 min-h-10 object-cover rounded"
+                    />
+
+                    <div>
+                      <h2 className="text-sm font-semibold text-nowrap">
+                        Logitech MX Master 3S
+                      </h2>
+                      <p className="text-xs bg-primary/20 text-primary px-2 py-px inline rounded">
+                        PROD-00001
+                      </p>
+                    </div>
+                  </div>
+                </th>
+
+                <td>Aksesoris Komputer</td>
+                <td>PCS</td>
+                <td>20 PCS</td>
+                <td>
+                  <span className="text-success bg-accent/70 px-4 rounded-full font-semibold">
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-2">
+                    <Link to={""}>
+                      <Eye size={16} />
+                    </Link>
+                    <span>
+                      <Pen size={13} />
+                    </span>
+                    <span className="text-error">
+                      <CircleMinus size={13} />
+                    </span>
+                  </div>
+                </td>
               </tr>
-              {/* row 2 */}
               <tr>
-                <th>2</th>
-                <td>Hart Hagerty</td>
-                <td>Desktop Support Technician</td>
-                <td>Purple</td>
+                <th>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="https://images.pexels.com/photos/6944703/pexels-photo-6944703.jpeg"
+                      alt="Logitech MX Master 3S"
+                      className="w-10 h-10 min-w-10 min-h-10 object-cover rounded"
+                    />
+
+                    <div>
+                      <h2 className="text-sm font-semibold text-nowrap">
+                        Kertas A4 80gsm PaperOne
+                      </h2>
+                      <p className="text-xs bg-primary/20 text-primary px-2 py-px inline rounded">
+                        PROD-00002
+                      </p>
+                    </div>
+                  </div>
+                </th>
+
+                <td>Alat Tulis Kantor</td>
+                <td>RIM</td>
+                <td>100 rim</td>
+                <td>
+                  <span className="text-gray-700 bg-gray-700/20 px-4 rounded-full font-semibold">
+                    Inactive
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-2">
+                    <Link to={""}>
+                      <Eye size={16} />
+                    </Link>
+                    <span>
+                      <Pen size={13} />
+                    </span>
+                    <span className="text-error">
+                      <CircleMinus size={13} />
+                    </span>
+                  </div>
+                </td>
               </tr>
-              {/* row 3 */}
               <tr>
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
+                <th>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="https://images.pexels.com/photos/5833752/pexels-photo-5833752.jpeg"
+                      alt="Logitech MX Master 3S"
+                      className="w-10 h-10 min-w-10 min-h-10 object-cover rounded"
+                    />
+
+                    <div>
+                      <h2 className="text-sm font-semibold text-nowrap">
+                        Samsung Monitor 27 inch Curved
+                      </h2>
+                      <p className="text-xs bg-primary/20 text-primary px-2 py-px inline rounded">
+                        PROD-00003
+                      </p>
+                    </div>
+                  </div>
+                </th>
+
+                <td>Elektronik & Display</td>
+                <td>UNIT</td>
+                <td>10 unit</td>
+                <td>
+                  <span className="text-success bg-accent/70 px-4 rounded-full font-semibold">
+                    Active
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-2">
+                    <Link to={""}>
+                      <Eye size={16} />
+                    </Link>
+                    <span>
+                      <Pen size={13} />
+                    </span>
+                    <span className="text-error">
+                      <CircleMinus size={13} />
+                    </span>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between bg-white p-4 border-t border-gray-200 shadow">
+        <div className="flex items-center gap-4">
+          <p className="text-sm">
+            Menampilkan <span className="font-bold">1-7</span> dari{" "}
+            <span className="font-bold">1,239</span> produk
+          </p>
+          <div className="flex items-center text-sm gap-2">
+            <label>Tampilkan</label>
+            <select className="select">
+              <option>10 per halaman</option>
+              <option>15 per halaman</option>
+              <option>20 per halaman</option>
+              <option>25 per halaman</option>
+              <option>30 per halaman</option>
+            </select>
+          </div>
+        </div>
+        <div className="join">
+          <button className="join-item btn btn-disabled">«</button>
+          <button className="join-item btn btn-primary pointer-events-none">
+            1
+          </button>
+          <button className="join-item btn">2</button>
+          <button className="join-item btn">3</button>
+          <button className="join-item btn btn-disabled">...</button>
+          <button className="join-item btn">100</button>
+          <button className="join-item btn">»</button>
         </div>
       </div>
     </div>
