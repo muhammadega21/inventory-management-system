@@ -29,7 +29,6 @@ const createProductSchema = z.object({
     .trim()
     .max(500, "Description must be at most 500 characters")
     .optional(),
-  image: z.string().url("Invalid image URL").optional(),
   is_active: formBoolean.default(true),
 });
 
@@ -58,11 +57,14 @@ const updateProductSchema = z.object({
     .max(500, "Description must be at most 500 characters")
     .nullable()
     .optional(),
-  image: z.string().url("Invalid image URL").optional(),
   is_active: formBoolean.optional(),
 });
 
-export type CreateProductInput = z.infer<typeof createProductSchema>;
-export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export type CreateProductInput = z.infer<typeof createProductSchema> & {
+  image?: string | null;
+};
+export type UpdateProductInput = z.infer<typeof updateProductSchema> & {
+  image?: string | null;
+};
 
 export { createProductSchema, updateProductSchema };

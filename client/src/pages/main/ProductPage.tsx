@@ -14,17 +14,20 @@ import PageHeader from "../../components/dashboard/PageHeader";
 import { breadcrumbs } from "../../utils/breadcrumbs";
 import Card from "../../components/dashboard/Card";
 import { Link } from "react-router";
+import ModalProduct from "../../components/modal/ModalProduct";
 
 const ProductPage = () => {
   return (
     <div>
+      {/* Modal */}
+      <ModalProduct id="add-product" modalTitle="Produk" type="add" />
       {/* Page Hero */}
       <PageHeader
         title="Katalog Produk"
         description="Katalog spesifikasi dasar dan identitas SKU barang untuk operasional inventaris dan pergerakan stok antar gudang"
         breadcrumbs={breadcrumbs.products}
       >
-        <button className="btn btn-primary btn-sm">
+        <button className="btn btn-primary btn-sm" popoverTarget="add-product">
           <Plus size={16} /> Tambah Produk
         </button>
       </PageHeader>

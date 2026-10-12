@@ -13,3 +13,8 @@
 body {
   @apply bg-[#eff4ff] text-[#1E293B];
 }
+
+label:has(+ :is(input[required], select[required], textarea[required]))::after {
+  content: " *";
+  color: var(--color-error);
+}
