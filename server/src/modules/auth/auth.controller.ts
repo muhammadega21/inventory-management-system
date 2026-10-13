@@ -108,6 +108,23 @@ export const AuthController = {
     }
   },
 
+  async csrfToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.setHeader("Cache-Control", "no-store");
+
+      const existingToken = req.cookies?.[authCookieNames.csrf];
+
+      const csrfToken =
+        existingToken ?? generateCsrfToken(res, 24 * 60 * 60 * 1000);
+
+      return sendSuccess(res, "CSRF token retrieved successfully", {
+        csrfToken,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshTokenCookie = req.cookies?.[authCookieNames.refresh];

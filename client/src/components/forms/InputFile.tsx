@@ -1,4 +1,3 @@
-import React from "react";
 import type { InputProps } from ".";
 import { CircleQuestionMark, CloudUpload } from "lucide-react";
 import noImageIcon from "../../assets/no-image-icon.webp";

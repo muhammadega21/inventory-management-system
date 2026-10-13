@@ -9,6 +9,7 @@ import { loginSchema } from "../modules/auth/auth.schema.js";
 const router = express.Router();
 
 router.post("/login", validateRequest(loginSchema), AuthController.login);
+router.get("/csrf", AuthController.csrfToken);
 router.get("/me", isAuth, AuthController.me);
 router.post("/refresh", verifyCsrfToken, AuthController.refreshToken);
 router.post("/logout", verifyCsrfToken, AuthController.logout);

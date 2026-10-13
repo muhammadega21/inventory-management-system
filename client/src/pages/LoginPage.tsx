@@ -1,7 +1,42 @@
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import logo from "../assets/logo.svg";
+import useDocumentTitle from "../hook/useDocumentTitle";
+import { Navigate, useNavigate } from "react-router";
+import { useLogin, useMe } from "../hook/useAuth";
+import { useForm } from "react-hook-form";
+import { loginFormSchema, type LoginFormInput } from "../schemas/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { showAlert } from "../utils/swal";
 
 const LoginPage = () => {
+  useDocumentTitle("Login Page");
+
+  const navigate = useNavigate();
+  const loginMutation = useLogin();
+  const { data: user } = useMe();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInput>({
+    resolver: zodResolver(loginFormSchema),
+  });
+
+  if (user) return <Navigate to={"/"} replace />;
+
+  const onSubmit = async (formData: LoginFormInput) => {
+    try {
+      await loginMutation.mutateAsync(formData);
+      showAlert.toast("success", "Login successful");
+      navigate("/dashboard");
+    } catch (error: any) {
+      const msg =
+        error.response?.data?.message || "Incorrect email or password";
+      showAlert.alert("error", "Login Failed", msg);
+    }
+  };
+
   return (
     <div className="h-screen grid place-items-center">
       <div className=" w-[40%]">
@@ -19,7 +54,7 @@ const LoginPage = () => {
               Aplikasi
             </p>
           </div>
-          <form>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="my-4 ">
               <div className="flex flex-col ">
                 <label className="mb-1">Email Perusahaan</label>
@@ -30,8 +65,14 @@ const LoginPage = () => {
                     className="w-full"
                     placeholder="mail@site.com"
                     required
+                    {...register("email")}
                   />
                 </label>
+                {errors.email && (
+                  <p className="label text-red-500 mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col mt-3">
                 <label className="mb-1">Password</label>
@@ -42,16 +83,33 @@ const LoginPage = () => {
                     className="w-full"
                     placeholder="••••••••••••"
                     required
+                    {...register("password")}
                   />
                 </label>
+                {errors.password && (
+                  <p className="label text-red-500 mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <label className="label mt-3">
-                <input type="checkbox" className="checkbox checkbox-sm" />
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-sm"
+                  {...register("rememberMe")}
+                />
                 Ingat sesi saya
               </label>
             </div>
-            <button className="btn btn-primary w-full">
-              Masuk ke Sistem <ArrowRight size={16} />
+            <button
+              disabled={loginMutation.isPending}
+              className="btn btn-primary w-full"
+            >
+              {loginMutation.isPending ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                "Masuk ke Sistem"
+              )}
             </button>
           </form>
         </div>

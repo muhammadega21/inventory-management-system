@@ -10,6 +10,7 @@ import SupplierPage from "../pages/master/SupplierPage";
 import WarehousePage from "../pages/master/WarehousePage";
 import UserPage from "../pages/master/UserPage";
 import LoginPage from "../pages/LoginPage";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       // Main Page
       {
