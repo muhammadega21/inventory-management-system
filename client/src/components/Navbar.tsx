@@ -1,6 +1,13 @@
 import { Bell, ChevronDown, Cog, LogOut, User } from "lucide-react";
+import { useMe } from "../hook/useAuth";
+
+function getInitials(name: string) {
+  const [firstName, lastName] = name.split(" ");
+  return firstName.charAt(0) + lastName.charAt(0);
+}
 
 const Navbar = () => {
+  const { data: user } = useMe();
   return (
     <nav className="navbar w-full h-16 bg-white border-b border-gray-200 shadow-xs flex justify-end px-6">
       <Bell size={18} className="opacity-80" />
@@ -11,13 +18,13 @@ const Navbar = () => {
           popoverTarget="popover-1"
           style={{ anchorName: "--anchor-1" }}
         >
-          <div className="flex h-max self-center bg-primary text-sm p-2 rounded-full font-semibold text-white">
-            ME
+          <div className="flex w-9 h-9 justify-center items-center self-center bg-primary text-sm rounded-full font-semibold text-white">
+            {getInitials(user.name)}
           </div>
           <div className="flex flex-col items-start">
-            <p className="font-semibold text-sm">Muhammad Ega Dermawan</p>
+            <p className="font-semibold text-sm">{user.name}</p>
             <p className="inline text-xs font-semibold px-1.5 py-px rounded border border-primary bg-primary/20 uppercase text-primary ">
-              Admin
+              {user.role}
             </p>
           </div>
           <ChevronDown className="self-center opacity-80" size={16} />

@@ -5,27 +5,7 @@ import { deleteFromCloudinary } from "../../common/utils/upload.util.js";
 import { prisma } from "../../lib/prisma.js";
 import { createError } from "../../middlewares/errorHandler.middleware.js";
 import { CreateProductInput, UpdateProductInput } from "./product.schema.js";
-
-export const ProductSelect = {
-  id: true,
-  category: {
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      is_active: true,
-    },
-  },
-  name: true,
-  sku: true,
-  unit: true,
-  minimum_stock: true,
-  description: true,
-  image: true,
-  is_active: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
+import { ProductDetailSelect, ProductListSelect } from "./product.select.js";
 
 const getPaginatedProducts = async (
   where: any,
@@ -45,7 +25,7 @@ const getPaginatedProducts = async (
       skip,
       take: limit,
       orderBy,
-      select: ProductSelect,
+      select: ProductListSelect,
     }),
     prisma.product.count({ where }),
   ]);
@@ -105,14 +85,44 @@ export const ProductService = {
   async findProductById(id: number) {
     const product = await prisma.product.findUnique({
       where: { id },
-      select: ProductSelect,
+      select: ProductDetailSelect,
     });
 
     if (!product) {
       throw createError("Product not found", 404);
     }
 
-    return product;
+    const warehouses = await prisma.warehouse.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        city: true,
+        address: true,
+        is_active: true,
+        inventories: {
+          where: { productId: id },
+          select: { id: true, quantity: true },
+        },
+      },
+    });
+
+    const inventories = warehouses.map(
+      ({ inventories: rows, ...warehouse }) => {
+        const inventory = rows[0];
+        return {
+          id: inventory?.id ?? null,
+          quantity: inventory?.quantity ?? 0,
+          warehouse,
+        };
+      },
+    );
+
+    return {
+      ...product,
+      inventories,
+    };
   },
 
   async createProduct(data: CreateProductInput) {
@@ -151,7 +161,7 @@ export const ProductService = {
         image: data.image ? data.image : null,
         is_active: data.is_active,
       },
-      select: ProductSelect,
+      select: ProductListSelect,
     });
 
     return product;
@@ -219,7 +229,7 @@ export const ProductService = {
     const product = await prisma.product.update({
       where: { id },
       data: updateData,
-      select: ProductSelect,
+      select: ProductListSelect,
     });
 
     if (data.image && oldImage && oldImage !== data.image) {
@@ -266,7 +276,45 @@ export const ProductService = {
     return prisma.product.update({
       where: { id },
       data: { is_active: false },
-      select: ProductSelect,
+      select: ProductListSelect,
     });
+  },
+
+  async getProductSummary() {
+    const [activeProducts, lowStockResult, stockout, inactiveProducts] =
+      await Promise.all([
+        prisma.product.count({
+          where: { is_active: true },
+        }),
+
+        prisma.$queryRaw<Array<{ total: bigint }>>`
+  SELECT COUNT(*) AS total
+  FROM inventories i
+  INNER JOIN products p ON p.id = i.product_id
+  INNER JOIN warehouses w ON w.id = i.warehouse_id
+  WHERE p.is_active = true
+    AND w.is_active = true
+    AND i.quantity < p.minimum_stock
+`,
+
+        prisma.inventory.count({
+          where: {
+            quantity: 0,
+            product: { is_active: true },
+            warehouse: { is_active: true },
+          },
+        }),
+
+        prisma.product.count({
+          where: { is_active: false },
+        }),
+      ]);
+
+    return {
+      activeProducts,
+      lowStock: Number(lowStockResult[0]?.total ?? 0n),
+      stockout,
+      inactiveProducts,
+    };
   },
 };

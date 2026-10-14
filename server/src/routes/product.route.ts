@@ -17,6 +17,7 @@ const router = express.Router();
 router.use(isAuth);
 
 router.get("/", ProductController.getAllProducts);
+router.get("/summary", ProductController.getProductSummary);
 router.get(
   "/:id",
   validateParams(idParamSchema),

@@ -4,6 +4,9 @@
 GET {{baseUrl}}/products
 Content-Type: application/json
 
+### Product Summary
+GET {{baseUrl}}/products/summary
+
 ### get product by id
 GET {{baseUrl}}/products/1
 Content-Type: application/json
