@@ -82,6 +82,44 @@ export const ProductService = {
     );
   },
 
+  async getProductSummary() {
+    const [activeProducts, lowStockResult, stockout, inactiveProducts] =
+      await Promise.all([
+        prisma.product.count({
+          where: { is_active: true },
+        }),
+
+        prisma.$queryRaw<Array<{ total: bigint }>>`
+  SELECT COUNT(*) AS total
+  FROM inventories i
+  INNER JOIN products p ON p.id = i.product_id
+  INNER JOIN warehouses w ON w.id = i.warehouse_id
+  WHERE p.is_active = true
+    AND w.is_active = true
+    AND i.quantity < p.minimum_stock
+`,
+
+        prisma.inventory.count({
+          where: {
+            quantity: 0,
+            product: { is_active: true },
+            warehouse: { is_active: true },
+          },
+        }),
+
+        prisma.product.count({
+          where: { is_active: false },
+        }),
+      ]);
+
+    return {
+      activeProducts,
+      lowStock: Number(lowStockResult[0]?.total ?? 0n),
+      stockout,
+      inactiveProducts,
+    };
+  },
+
   async findProductById(id: number) {
     const product = await prisma.product.findUnique({
       where: { id },
@@ -278,43 +316,5 @@ export const ProductService = {
       data: { is_active: false },
       select: ProductListSelect,
     });
-  },
-
-  async getProductSummary() {
-    const [activeProducts, lowStockResult, stockout, inactiveProducts] =
-      await Promise.all([
-        prisma.product.count({
-          where: { is_active: true },
-        }),
-
-        prisma.$queryRaw<Array<{ total: bigint }>>`
-  SELECT COUNT(*) AS total
-  FROM inventories i
-  INNER JOIN products p ON p.id = i.product_id
-  INNER JOIN warehouses w ON w.id = i.warehouse_id
-  WHERE p.is_active = true
-    AND w.is_active = true
-    AND i.quantity < p.minimum_stock
-`,
-
-        prisma.inventory.count({
-          where: {
-            quantity: 0,
-            product: { is_active: true },
-            warehouse: { is_active: true },
-          },
-        }),
-
-        prisma.product.count({
-          where: { is_active: false },
-        }),
-      ]);
-
-    return {
-      activeProducts,
-      lowStock: Number(lowStockResult[0]?.total ?? 0n),
-      stockout,
-      inactiveProducts,
-    };
   },
 };

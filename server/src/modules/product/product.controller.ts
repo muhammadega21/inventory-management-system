@@ -19,6 +19,16 @@ export const ProductController = {
     }
   },
 
+  async getProductSummary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const summary = await ProductService.getProductSummary();
+
+      return sendSuccess(res, "Success get product summary", summary, 200);
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
@@ -82,16 +92,6 @@ export const ProductController = {
       sendSuccess(res, "Success delete product", null, 200);
     } catch (error) {
       next(error);
-    }
-  },
-
-  async getProductSummary(req: Request, res: Response, next: NextFunction) {
-    try {
-      const summary = await ProductService.getProductSummary();
-
-      return sendSuccess(res, "Success get product summary", summary, 200);
-    } catch (error) {
-      return next(error);
     }
   },
 };
