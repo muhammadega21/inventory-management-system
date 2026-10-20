@@ -49,7 +49,7 @@ const PageHeader = ({
       <div className="flex gap-3 justify-between items-center">
         <div className="w-[65%]">
           <h1 className="text-2xl font-bold">{title}</h1>
-          <p className="text-sm text-gray-700">{description}</p>
+          <p className="text-sm text-gray-700 mt-2">{description}</p>
         </div>
         <div className="w-[35%] flex justify-end items-center gap-3">
           {children}

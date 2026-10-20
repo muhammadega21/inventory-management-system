@@ -4,7 +4,7 @@ export const breadcrumbs = {
   inventory: [
     { label: "Home", href: "/" },
     { label: "Main" },
-    { label: "Inventaris", href: "/inventory" },
+    { label: "Inventaris", href: "/inventories" },
   ],
 
   products: [
@@ -16,7 +16,7 @@ export const breadcrumbs = {
   stockMovement: [
     { label: "Home", href: "/" },
     { label: "Main" },
-    { label: "Transaksi Stok", href: "/stock-movement" },
+    { label: "Transaksi Stok", href: "/stock-movements" },
   ],
 
   categories: [

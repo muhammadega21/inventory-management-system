@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   createProduct,
   deleteProduct,
@@ -13,6 +18,7 @@ export const useGetProducts = (params: ProductQuery) => {
   return useQuery({
     queryKey: ["products", "list", params],
     queryFn: () => getProducts(params),
+    placeholderData: keepPreviousData, // kode ini digunakan untuk menampilkan data sebelumnya saat query baru sedang dimuat
   });
 };
 
@@ -27,6 +33,7 @@ export const useGetProductById = (id: number) => {
   return useQuery({
     queryKey: ["products", "detail", id],
     queryFn: () => getProductById(id),
+    enabled: Number.isInteger(id) && id > 0, // kode ini digunakan untuk menonaktifkan query jika id tidak valid (misal: undefined, null, atau bukan angka)
   });
 };
 

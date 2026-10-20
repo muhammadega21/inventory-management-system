@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { loginFormSchema, type LoginFormInput } from "../schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showAlert } from "../utils/swal";
+import { getApiErrorMessage } from "../utils/apiError";
 
 const LoginPage = () => {
   useDocumentTitle("Login Page");
@@ -29,11 +30,13 @@ const LoginPage = () => {
     try {
       await loginMutation.mutateAsync(formData);
       showAlert.toast("success", "Login successful");
-      navigate("/dashboard");
-    } catch (error: any) {
-      const msg =
-        error.response?.data?.message || "Incorrect email or password";
-      showAlert.alert("error", "Login Failed", msg);
+      navigate("/");
+    } catch (error: unknown) {
+      showAlert.alert(
+        "error",
+        "Login gagal",
+        getApiErrorMessage(error, "Email atau password salah."),
+      );
     }
   };
 

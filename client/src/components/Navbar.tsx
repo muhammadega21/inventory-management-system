@@ -1,13 +1,31 @@
 import { Bell, ChevronDown, Cog, LogOut, User } from "lucide-react";
-import { useMe } from "../hook/useAuth";
+import { useLogout, useMe } from "../hook/useAuth";
+import { showAlert } from "../utils/swal";
+import { getApiErrorMessage } from "../utils/apiError";
+import { useNavigate } from "react-router";
 
 function getInitials(name: string) {
-  const [firstName, lastName] = name.split(" ");
-  return firstName.charAt(0) + lastName.charAt(0);
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "U";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
 }
 
 const Navbar = () => {
   const { data: user } = useMe();
+  const navigate = useNavigate();
+
+  const logoutMutation = useLogout();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      showAlert.alert("error", "Logout gagal", getApiErrorMessage(error));
+    }
+  };
+
   return (
     <nav className="navbar w-full h-16 bg-white border-b border-gray-200 shadow-xs flex justify-end px-6">
       <Bell size={18} className="opacity-80" />
@@ -19,12 +37,12 @@ const Navbar = () => {
           style={{ anchorName: "--anchor-1" }}
         >
           <div className="flex w-9 h-9 justify-center items-center self-center bg-primary text-sm rounded-full font-semibold text-white">
-            {getInitials(user.name)}
+            {getInitials(user?.name ?? "User")}
           </div>
           <div className="flex flex-col items-start">
-            <p className="font-semibold text-sm">{user.name}</p>
+            <p className="font-semibold text-sm">{user?.name ?? "Pengguna"}</p>
             <p className="inline text-xs font-semibold px-1.5 py-px rounded border border-primary bg-primary/20 uppercase text-primary ">
-              {user.role}
+              {user?.role ?? "—"}
             </p>
           </div>
           <ChevronDown className="self-center opacity-80" size={16} />
@@ -49,9 +67,18 @@ const Navbar = () => {
             </a>
           </li>
           <li>
-            <a>
-              <LogOut size={16} /> Logout
-            </a>
+            <button
+              type="button"
+              onClick={() => handleLogout()}
+              disabled={logoutMutation.isPending}
+            >
+              {logoutMutation.isPending ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <LogOut size={16} />
+              )}
+              Keluar
+            </button>
           </li>
         </ul>
       </div>

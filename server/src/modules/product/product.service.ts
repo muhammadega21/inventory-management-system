@@ -214,6 +214,35 @@ export const ProductService = {
       throw createError("Product not found", 404);
     }
 
+    if (data.is_active === false && existingProduct.is_active) {
+      const inventoryWithStock = await prisma.inventory.findFirst({
+        where: { productId: id, quantity: { gt: 0 } },
+        select: { id: true },
+      });
+
+      if (inventoryWithStock) {
+        throw createError(
+          "Cannot deactivate product while stock still exists",
+          400,
+        );
+      }
+    }
+
+    if (data.is_active === true && !existingProduct.is_active) {
+      const categoryId = data.category_id ?? existingProduct.categoryId;
+      const category = await prisma.category.findUnique({
+        where: { id: categoryId },
+        select: { id: true, is_active: true },
+      });
+
+      if (!category || !category.is_active) {
+        throw createError(
+          "Cannot activate product with an inactive or missing category",
+          400,
+        );
+      }
+    }
+
     const updateData: Prisma.ProductUpdateInput = {};
 
     if (data.name !== undefined) {

@@ -48,6 +48,7 @@ const updateProductSchema = z.object({
   unit: z
     .string()
     .trim()
+    .min(1, "Unit is required")
     .max(15, "Unit must be at most 15 characters")
     .optional(),
   minimum_stock: z.coerce.number().int().min(0).optional(),

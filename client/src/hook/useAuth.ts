@@ -1,12 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMe, login, logout } from "../services/auth.service";
+import type { AuthUser } from "../type/auth";
+
+export const authQueryKey = ["auth"] as const;
 
 export const useMe = () => {
-  return useQuery({
-    queryKey: ["auth"],
+  return useQuery<AuthUser | null>({
+    queryKey: authQueryKey,
     queryFn: getMe,
     retry: false,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -15,7 +18,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      queryClient.setQueryData(["auth"], data.user);
+      queryClient.setQueryData(authQueryKey, data.user);
     },
   });
 };
@@ -25,8 +28,8 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.setQueryData(["auth"], null);
       queryClient.clear();
+      queryClient.setQueryData(authQueryKey, null);
     },
   });
 };

@@ -5,7 +5,7 @@ const Input = ({
   name,
   label,
   required,
-  type,
+  type = "text",
   placeholder,
   className,
   error,
@@ -29,7 +29,7 @@ const Input = ({
       <input
         type={type}
         name={name}
-        className={`input w-full ${className} ${error ? "input-error" : ""}`}
+        className={`input w-full ${className} ${error ? "input-error" : ""}`.trim()}
         required={required}
         placeholder={placeholder}
         value={value}
