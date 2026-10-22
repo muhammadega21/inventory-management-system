@@ -1,14 +1,8 @@
 import { api } from "../lib/axios";
-import type { PaginationMeta } from "../type/api";
-import type { CategoryListItem, CategoryListResponse } from "../type/category";
-
-export interface CategoryOptionsResult {
-  items: CategoryListItem[];
-  meta?: PaginationMeta;
-}
+import type { CategoryListResponse } from "../type/category";
 
 export async function getCategories(isActive?: boolean) {
-  const response = await api.get<CategoryListResponse>("/categories", {
+  const { data } = await api.get<CategoryListResponse>("/categories", {
     params: {
       page: 1,
       limit: 100,
@@ -18,7 +12,7 @@ export async function getCategories(isActive?: boolean) {
     },
   });
 
-  return { items: response.data.data, meta: response.data.meta };
+  return data;
 }
 
 export async function getActiveCategories() {

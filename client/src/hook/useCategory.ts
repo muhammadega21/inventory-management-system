@@ -4,11 +4,13 @@ import {
   getCategories,
 } from "../services/category.service";
 
-export const useGetCategories = () => {
+// Parameter enabled bisa dipakai modal agar tidak mengambil data saat tertutup.
+export const useGetCategories = (enabled = true) => {
   return useQuery({
     queryKey: ["categories", "list"],
     queryFn: () => getCategories(),
     staleTime: 1000 * 60 * 5,
+    enabled,
   });
 };
 

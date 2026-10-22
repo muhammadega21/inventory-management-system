@@ -29,11 +29,11 @@ export const useGetProductSummary = () => {
   });
 };
 
-export const useGetProductById = (id: number) => {
+export const useGetProductById = (id: number, enabled = true) => {
   return useQuery({
     queryKey: ["products", "detail", id],
     queryFn: () => getProductById(id),
-    enabled: Number.isInteger(id) && id > 0, // kode ini digunakan untuk menonaktifkan query jika id tidak valid (misal: undefined, null, atau bukan angka)
+    enabled: enabled && id > 0,
   });
 };
 

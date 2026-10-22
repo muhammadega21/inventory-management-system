@@ -19,13 +19,24 @@ import Card from "../../components/dashboard/Card";
 import { Link } from "react-router";
 import ModalProduct from "../../components/modal/ModalProduct";
 import useDocumentTitle from "../../hook/useDocumentTitle";
-import { useGetProducts, useGetProductSummary } from "../../hook/useProduct";
+import {
+  useDeleteProduct,
+  useGetProducts,
+  useGetProductSummary,
+} from "../../hook/useProduct";
 import { useEffect, useState } from "react";
-import type { ProductSortBy } from "../../type/product";
+import type { ProductListItem, ProductSortBy } from "../../type/product";
 import { useGetCategories } from "../../hook/useCategory";
 import { getApiErrorMessage } from "../../utils/apiError";
 import { useMe } from "../../hook/useAuth";
 import { Pagination } from "../../components/Pagination";
+import { showAlert } from "../../utils/swal";
+
+interface ProductModalState {
+  isOpen: boolean;
+  mode: "add" | "edit";
+  product?: ProductListItem;
+}
 
 const ProductPage = () => {
   useDocumentTitle("Product Page");
@@ -38,12 +49,17 @@ const ProductPage = () => {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
-  const [sortBy, setSortBy] = useState<ProductSortBy>("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<ProductSortBy>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [productModal, setProductModal] = useState<ProductModalState>({
+    isOpen: false,
+    mode: "add",
+  });
 
   const { data: user } = useMe();
   const summaryQuery = useGetProductSummary();
   const categoryQuery = useGetCategories();
+  const deleteMutation = useDeleteProduct();
   const isAdmin = user?.role === "ADMIN";
 
   // Pencarian dikirim setelah pengguna berhenti mengetik selama 400 ms.
@@ -67,7 +83,7 @@ const ProductPage = () => {
 
   const products = productQuery.data?.data ?? [];
   const meta = productQuery.data?.meta;
-  const categories = categoryQuery.data?.items ?? [];
+  const categories = categoryQuery.data?.data ?? [];
   const summary = summaryQuery.data?.data;
   const totalPages = meta?.totalPages ?? 0;
   const firstRow = meta && meta.total > 0 ? (page - 1) * limit + 1 : 0;
@@ -80,13 +96,47 @@ const ProductPage = () => {
     }
   }, [meta, page]);
 
+  const openAddModal = () => {
+    setProductModal({ isOpen: true, mode: "add" });
+  };
+
+  const openEditModal = (product: ProductListItem) => {
+    setProductModal({ isOpen: true, mode: "edit", product });
+  };
+
+  const closeProductModal = () => {
+    setProductModal({ isOpen: false, mode: "add" });
+  };
+
+  const handleArchiveProduct = async (product: ProductListItem) => {
+    const confirmed = await showAlert.confirmAction(
+      "Arsipkan produk ini?",
+      `Produk "${product.name}" akan dinonaktifkan. Produk tetap tercatat dalam riwayat inventaris.`,
+      "Ya, arsipkan",
+      "Batal",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteMutation.mutateAsync(product.id);
+      showAlert.toast("success", "Produk berhasil diarsipkan");
+    } catch (error) {
+      showAlert.alert(
+        "error",
+        "Gagal mengarsipkan produk",
+        getApiErrorMessage(error),
+      );
+    }
+  };
+
   const handleResetFilter = () => {
     setSearch("");
     setDebouncedSearch("");
     setCategoryId("all");
     setStatusFilter("all");
-    setSortBy("name");
-    setSortOrder("asc");
+    setSortBy("createdAt");
+    setSortOrder("desc");
     setLimit(10);
     setPage(1);
   };
@@ -108,16 +158,27 @@ const ProductPage = () => {
   return (
     <div>
       {/* Modal */}
-      <ModalProduct id="add-product" modalTitle="Produk" type="add" />
+      <ModalProduct
+        isOpen={productModal.isOpen}
+        onClose={closeProductModal}
+        mode={productModal.mode}
+        data={productModal.product}
+      />
       {/* Page Hero */}
       <PageHeader
         title="Katalog Produk"
         description="Katalog spesifikasi dasar dan identitas SKU barang untuk operasional inventaris dan pergerakan stok antar gudang"
         breadcrumbs={breadcrumbs.products}
       >
-        <button className="btn btn-primary btn-sm" popoverTarget="add-product">
-          <Plus size={16} /> Tambah Produk
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={openAddModal}
+          >
+            <Plus size={16} /> Tambah Produk
+          </button>
+        )}
       </PageHeader>
 
       {/* Cards */}
@@ -238,9 +299,9 @@ const ProductPage = () => {
           onChange={(event) => handleSortChange(event.currentTarget.value)}
           aria-label="Urutkan produk"
         >
+          <option value="createdAt-desc">Terbaru ditambahkan</option>
           <option value="name-asc">Nama (A–Z)</option>
           <option value="name-desc">Nama (Z–A)</option>
-          <option value="createdAt-desc">Terbaru ditambahkan</option>
         </select>
         <span
           className="badge text-gray-700 cursor-pointer"
@@ -270,93 +331,123 @@ const ProductPage = () => {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table table-zebra">
-              {/* head */}
-              <thead>
-                <tr>
-                  <th>Produk</th>
-                  <th>Kategori</th>
-                  <th>Satuan (Unit)</th>
-                  <th>Min. Stok</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productQuery.isLoading ? (
+          <>
+            {productQuery.isError && products.length > 0 && (
+              <p className="px-4 pt-3 text-sm text-warning" role="status">
+                Pembaruan gagal. Data terakhir yang berhasil dimuat tetap
+                ditampilkan.
+              </p>
+            )}
+            <div className="overflow-x-auto">
+              <table className="table table-zebra">
+                {/* head */}
+                <thead>
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="py-10 text-center">
-                      <span className="loading loading-spinner loading-sm mr-2" />{" "}
-                      Memuat produk…
-                    </td>
+                    <th>Produk</th>
+                    <th>Kategori</th>
+                    <th>Satuan (Unit)</th>
+                    <th>Min. Stok</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
                   </tr>
-                ) : products.length === 0 ? (
-                  <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="py-12 text-center">
-                      <p className="font-semibold">Produk tidak ditemukan</p>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Coba ubah kata kunci atau reset filter.
-                      </p>
-                    </td>
-                  </tr>
-                ) : (
-                  products.map((item) => (
+                </thead>
+                <tbody>
+                  {productQuery.isLoading ? (
                     <tr>
-                      <th>
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={item.image ?? noImage}
-                            alt={item.name}
-                            className="w-10 h-10 min-w-10 min-h-10 object-cover rounded"
-                          />
-
-                          <div>
-                            <h2 className="text-sm font-semibold text-nowrap">
-                              {item.name}
-                            </h2>
-                            <p className="text-xs bg-primary/20 text-primary px-2 py-px inline rounded">
-                              {item.sku}
-                            </p>
-                          </div>
-                        </div>
-                      </th>
-
-                      <td>{item.category.name}</td>
-                      <td>{item.unit}</td>
-                      <td>
-                        {item.minimum_stock} {item.unit}
-                      </td>
-                      <td>
-                        {item.is_active ? (
-                          <span className="text-success bg-accent/70 px-4 rounded-full font-semibold">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="text-gray-800 bg-gray-700/30  px-4 rounded-full font-semibold">
-                            Inactive
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="flex gap-2">
-                          <Link to={""}>
-                            <Eye size={16} />
-                          </Link>
-                          <span>
-                            <Pen size={13} />
-                          </span>
-                          <span className="text-error">
-                            <CircleMinus size={13} />
-                          </span>
-                        </div>
+                      <td
+                        colSpan={isAdmin ? 6 : 5}
+                        className="py-10 text-center"
+                      >
+                        <span className="loading loading-spinner loading-sm mr-2" />{" "}
+                        Memuat produk…
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={isAdmin ? 6 : 5}
+                        className="py-12 text-center"
+                      >
+                        <p className="font-semibold">Produk tidak ditemukan</p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Coba ubah kata kunci atau reset filter.
+                        </p>
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((item) => (
+                      <tr>
+                        <th>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={item.image ?? noImage}
+                              alt={item.name}
+                              loading="lazy"
+                              className="w-10 h-10 min-w-10 min-h-10 object-cover rounded"
+                            />
+
+                            <div>
+                              <h2 className="text-sm font-semibold text-nowrap">
+                                {item.name}
+                              </h2>
+                              <p className="text-xs bg-primary/20 text-primary px-2 py-px inline rounded">
+                                {item.sku}
+                              </p>
+                            </div>
+                          </div>
+                        </th>
+
+                        <td>{item.category.name}</td>
+                        <td>{item.unit}</td>
+                        <td>
+                          {item.minimum_stock} {item.unit}
+                        </td>
+                        <td>
+                          {item.is_active ? (
+                            <span className="text-success bg-accent/70 px-4 rounded-full font-semibold">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="text-gray-800 bg-gray-700/30  px-4 rounded-full font-semibold">
+                              Inactive
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <div className="flex gap-2">
+                            <Link to={""}>
+                              <Eye size={16} />
+                            </Link>
+                            <button
+                              type="button"
+                              className="text-warning cursor-pointer"
+                              title={`Edit ${item.name}`}
+                              aria-label={`Edit ${item.name}`}
+                              onClick={() => openEditModal(item)}
+                            >
+                              <Pen size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-error cursor-pointer"
+                              title="Arsipkan produk"
+                              aria-label={`Arsipkan ${item.name}`}
+                              disabled={
+                                !item.is_active || deleteMutation.isPending
+                              }
+                              onClick={() => void handleArchiveProduct(item)}
+                            >
+                              <CircleMinus size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

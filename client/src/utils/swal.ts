@@ -21,26 +21,41 @@ export const showAlert = {
   },
 
   alert: (icon: SweetAlertIcon, title: string, text?: string) => {
-    Swal.fire({
-      icon,
-      title,
-      text,
-      confirmButtonColor: CONFIRM_COLOR,
-    });
+    Swal.fire({ icon, title, text, confirmButtonColor: CONFIRM_COLOR });
   },
 
-  confirmDelete: async (title: string, text: string): Promise<boolean> => {
-    const res = await Swal.fire({
+  confirmAction: async (
+    title: string,
+    text: string,
+    confirmButtonText = "Ya, lanjutkan",
+    cancelButtonText = "Batal",
+  ): Promise<boolean> => {
+    const result = await Swal.fire({
       title,
       text,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: DANGER_COLOR,
       cancelButtonColor: "#6B7280",
-      confirmButtonText: "Yes, Delete!",
-      cancelButtonText: "Cancel",
+      confirmButtonText,
+      cancelButtonText,
     });
 
-    return res.isConfirmed;
+    return result.isConfirmed;
+  },
+
+  confirmDelete: async (title: string, text: string): Promise<boolean> => {
+    const result = await Swal.fire({
+      title,
+      text,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: DANGER_COLOR,
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+
+    return result.isConfirmed;
   },
 };

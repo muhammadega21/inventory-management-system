@@ -1,39 +1,72 @@
-import React from "react";
-import type { InputProps } from ".";
 import { CircleQuestionMark } from "lucide-react";
+import type { ChangeEvent } from "react";
+import type { TextareaProps } from ".";
 
 const Textarea = ({
   name,
   label,
-  required,
+  required = false,
   placeholder,
-  className,
+  className = "",
   error,
   value,
+  defaultValue,
   tooltip,
-}: InputProps) => {
+  id,
+  disabled = false,
+  rows = 3,
+  maxLength,
+  register,
+  onChange,
+}: TextareaProps) => {
+  const textareaId = id ?? name;
+
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    void register?.onChange(event);
+    onChange?.(event);
+  };
+
   return (
-    <div className="flex flex-col gap-1 mb-2">
-      <label className="font-semibold w-max relative">
-        {label}
+    <div className="mb-2 flex flex-col gap-1">
+      <label htmlFor={textareaId} className="label py-1">
+        <span className="label-text font-semibold text-gray-700">{label}</span>
         {tooltip && (
-          <span
-            className="mx-1 absolute -right-6 tooltip tooltip-start"
-            data-tip={tooltip}
-          >
-            <CircleQuestionMark size={14} className="text-gray-600" />
+          <span className="tooltip tooltip-left" data-tip={tooltip}>
+            <CircleQuestionMark
+              size={14}
+              className="text-gray-600"
+              aria-hidden="true"
+            />
           </span>
         )}
       </label>
 
       <textarea
-        name={name}
-        className={`textarea w-full ${className} ${error ? "input-error" : ""}`}
+        id={textareaId}
+        name={register?.name ?? name}
+        ref={register?.ref}
+        onBlur={register?.onBlur}
+        onChange={register ? handleChange : onChange}
+        rows={rows}
+        maxLength={maxLength}
+        className={`textarea textarea-bordered w-full ${className} ${error ? "textarea-error" : ""}`.trim()}
         required={required}
         placeholder={placeholder}
-        value={value}
+        disabled={disabled}
+        {...(value !== undefined ? { value } : { defaultValue })}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${textareaId}-error` : undefined}
       />
-      {error && <span className="text-sm text-error">{error}</span>}
+
+      {error && (
+        <span
+          id={`${textareaId}-error`}
+          className="text-sm text-error"
+          role="alert"
+        >
+          {error}
+        </span>
+      )}
     </div>
   );
 };

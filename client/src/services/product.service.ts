@@ -31,12 +31,20 @@ export const getProductById = async (id: number) => {
 };
 
 export const createProduct = async (payload: FormData) => {
-  const { data } = await api.post<ProductResponse>("/products", payload);
+  const { data } = await api.post<ProductResponse>("/products", payload, {
+    headers: { "Content-Type": false },
+  });
   return data;
 };
 
 export const updateProduct = async (id: number, payload: FormData) => {
-  const { data } = await api.patch<ProductResponse>(`/products/${id}`, payload);
+  const { data } = await api.patch<ProductResponse>(
+    `/products/${id}`,
+    payload,
+    {
+      headers: { "Content-Type": false },
+    },
+  );
   return data;
 };
 

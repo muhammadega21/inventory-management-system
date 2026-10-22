@@ -49,8 +49,8 @@ export interface ProductStockMovement {
 export interface ProductDetail extends ProductListItem {
   description: string | null;
   updatedAt: string;
-  stockMovements: ProductStockMovement[];
-  inventories: ProductInventory[];
+  stockMovements?: ProductStockMovement[];
+  inventories?: ProductInventory[];
 }
 
 export interface ProductSummary {

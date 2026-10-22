@@ -37,9 +37,8 @@ export const productFormSchema = z.object({
     .int("Stok minimum harus berupa bilangan bulat")
     .min(0, "Stok minimum tidak boleh negatif"),
   description: z.string().trim().max(500, "Deskripsi maksimal 500 karakter"),
-  is_active: z.boolean(),
+  is_active: z.boolean().optional(),
   image: productImageSchema,
 });
 
-export type ProductFormInput = z.input<typeof productFormSchema>;
-export type ProductFormValues = z.output<typeof productFormSchema>;
+export type ProductFormData = z.infer<typeof productFormSchema>;
