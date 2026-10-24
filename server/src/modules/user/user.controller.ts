@@ -48,7 +48,7 @@ export const UserController = {
     try {
       const id = Number(req.params.id);
       await UserService.deleteUser(id);
-      sendSuccess(res, "Success delete user");
+      sendSuccess(res, "Success deactivate user");
     } catch (error) {
       next(error);
     }

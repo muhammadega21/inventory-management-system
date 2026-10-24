@@ -23,6 +23,14 @@ export const WarehouseController = {
       next(error);
     }
   },
+  async getWarehouseSummary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const summary = await WarehouseService.getWarehouseSummary();
+      sendSuccess(res, "Success get warehouse summary", summary, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
   async createWarehouse(req: Request, res: Response, next: NextFunction) {
     try {
       const warehouse = await WarehouseService.createWarehouse(req.body);
@@ -46,7 +54,7 @@ export const WarehouseController = {
     try {
       const id = Number(req.params.id);
       await WarehouseService.deleteWarehouse(id);
-      sendSuccess(res, "Success delete warehouse");
+      sendSuccess(res, "Success deactivate warehouse");
     } catch (error) {
       next(error);
     }

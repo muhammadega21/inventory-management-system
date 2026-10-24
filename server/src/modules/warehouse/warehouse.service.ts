@@ -31,7 +31,7 @@ const getPaginatedWarehouses = async (
   const orderBy =
     sortBy === "createdAt" ? { createdAt: sortOrder } : { name: sortOrder };
 
-  const [warehouse, total] = await Promise.all([
+  const [warehouses, total] = await Promise.all([
     prisma.warehouse.findMany({
       where,
       skip,
@@ -42,8 +42,35 @@ const getPaginatedWarehouses = async (
     prisma.warehouse.count({ where }),
   ]);
 
+  const warehouseIds = warehouses.map((warehouse) => warehouse.id);
+  const inventories = warehouseIds.length
+    ? await prisma.inventory.groupBy({
+        by: ["warehouseId"],
+        where: {
+          warehouseId: { in: warehouseIds },
+          product: { is_active: true },
+        },
+        _count: { _all: true },
+        _sum: { quantity: true },
+      })
+    : [];
+
+  const data = warehouses.map((warehouse) => {
+    const inventory = inventories.find(
+      (item) => item.warehouseId === warehouse.id,
+    );
+
+    return {
+      ...warehouse,
+      inventorySummary: {
+        skuCount: inventory?._count._all ?? 0,
+        totalQuantity: inventory?._sum.quantity ?? 0,
+      },
+    };
+  });
+
   return {
-    data: warehouse,
+    data,
     meta: paginationMeta(total, page, limit),
   };
 };
@@ -101,6 +128,31 @@ export const WarehouseService = {
     );
   },
 
+  async getWarehouseSummary() {
+    const [totalWarehouses, activeWarehouses, inactiveWarehouses, inventory] =
+      await Promise.all([
+        prisma.warehouse.count(),
+        prisma.warehouse.count({ where: { is_active: true } }),
+        prisma.warehouse.count({ where: { is_active: false } }),
+        prisma.inventory.aggregate({
+          where: {
+            product: { is_active: true },
+            warehouse: { is_active: true },
+          },
+          _count: { _all: true },
+          _sum: { quantity: true },
+        }),
+      ]);
+
+    return {
+      totalWarehouses,
+      activeWarehouses,
+      inactiveWarehouses,
+      skuLocationCount: inventory._count._all,
+      totalQuantity: inventory._sum.quantity ?? 0,
+    };
+  },
+
   async findWarehouseById(id: number) {
     const warehouse = await prisma.warehouse.findUnique({
       where: { id },
@@ -111,7 +163,48 @@ export const WarehouseService = {
       throw createError("Warehouse not found", 404);
     }
 
-    return warehouse;
+    const [inventorySummary, topProducts] = await Promise.all([
+      prisma.inventory.aggregate({
+        where: {
+          warehouseId: id,
+          product: { is_active: true },
+        },
+        _count: { _all: true },
+        _sum: { quantity: true },
+      }),
+      prisma.inventory.findMany({
+        where: {
+          warehouseId: id,
+          quantity: { gt: 0 },
+          product: { is_active: true },
+        },
+        orderBy: { quantity: "desc" },
+        take: 3,
+        select: {
+          quantity: true,
+          product: {
+            select: {
+              id: true,
+              sku: true,
+              name: true,
+              unit: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      ...warehouse,
+      inventorySummary: {
+        skuCount: inventorySummary._count._all,
+        totalQuantity: inventorySummary._sum.quantity ?? 0,
+      },
+      topProducts: topProducts.map((inventory) => ({
+        ...inventory.product,
+        quantity: inventory.quantity,
+      })),
+    };
   },
 
   async createWarehouse(data: CreateWarehouseInput) {
@@ -164,27 +257,28 @@ export const WarehouseService = {
   async deleteWarehouse(id: number) {
     const warehouse = await prisma.warehouse.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, is_active: true },
     });
 
     if (!warehouse) {
       throw createError("Warehouse not found", 404);
     }
 
-    const inventory = await prisma.inventory.findFirst({
-      where: {
-        productId: id,
-        quantity: {
-          gt: 0,
+    if (warehouse.is_active) {
+      const inventoryWithStock = await prisma.inventory.findFirst({
+        where: {
+          warehouseId: id,
+          quantity: { gt: 0 },
         },
-      },
-    });
+        select: { id: true },
+      });
 
-    if (inventory) {
-      throw createError(
-        "Cannot deactivate warehouse while stock still exists",
-        400,
-      );
+      if (inventoryWithStock) {
+        throw createError(
+          "Cannot deactivate warehouse while stock still exists",
+          400,
+        );
+      }
     }
 
     return prisma.warehouse.update({

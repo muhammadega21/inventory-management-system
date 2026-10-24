@@ -73,14 +73,14 @@ const InputFile = ({
 
         <label
           htmlFor={inputId}
-          className={`flex min-h-24 flex-1 flex-col items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-center ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100"}`}
+          className={`flex min-h-24  flex-1 flex-col items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-center ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100"}`}
         >
           <CloudUpload
             size={22}
-            className="mb-1 text-primary"
+            className="mb-1 text-primary "
             aria-hidden="true"
           />
-          <span className="text-sm font-semibold">
+          <span className="text-sm font-semibold break-all">
             {selectedFile?.name ?? "Pilih gambar produk"}
           </span>
           <span className="mt-1 text-xs text-gray-600">{helperText}</span>

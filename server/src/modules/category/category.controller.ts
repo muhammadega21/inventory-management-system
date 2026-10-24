@@ -45,7 +45,7 @@ export const CategoryController = {
     try {
       const id = Number(req.params.id);
       await CategoryService.deleteCategory(id);
-      sendSuccess(res, "Success delete category");
+      sendSuccess(res, "Success deactivate category");
     } catch (error) {
       next(error);
     }

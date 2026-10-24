@@ -427,18 +427,20 @@ const ProductPage = () => {
                             >
                               <Pen size={13} />
                             </button>
-                            <button
-                              type="button"
-                              className="text-error cursor-pointer"
-                              title="Arsipkan produk"
-                              aria-label={`Arsipkan ${item.name}`}
-                              disabled={
-                                !item.is_active || deleteMutation.isPending
-                              }
-                              onClick={() => void handleArchiveProduct(item)}
-                            >
-                              <CircleMinus size={13} />
-                            </button>
+                            {item.is_active && (
+                              <button
+                                type="button"
+                                className="text-error cursor-pointer"
+                                title="Arsipkan produk"
+                                aria-label={`Arsipkan ${item.name}`}
+                                disabled={
+                                  !item.is_active || deleteMutation.isPending
+                                }
+                                onClick={() => void handleArchiveProduct(item)}
+                              >
+                                <CircleMinus size={13} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

@@ -4,6 +4,10 @@
 GET {{baseUrl}}/warehouses
 Content-Type: application/json
 
+### get warehouse summary (summary cards)
+GET {{baseUrl}}/warehouses/summary
+Content-Type: application/json
+
 ### get warehouse by id
 GET {{baseUrl}}/warehouses/1
 Content-Type: application/json

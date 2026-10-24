@@ -47,7 +47,7 @@ export const SupplierController = {
     try {
       const id = Number(req.params.id);
       await SupplierService.deleteSupplier(id);
-      sendSuccess(res, "Success delete supplier");
+      sendSuccess(res, "Success deactivate supplier");
     } catch (error) {
       next(error);
     }

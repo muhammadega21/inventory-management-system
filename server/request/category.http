@@ -13,24 +13,24 @@ POST {{baseUrl}}/categories
 Content-Type: application/json
 
 {
-  "name": "test 2",
-  "description": "test 2",
+  "name": "Komponen Komputer",
+  "description": "test",
   "is_active": true
 }
 
 ### update category
-PATCH {{baseUrl}}/categories/1
+PATCH {{baseUrl}}/categories/3
 Content-Type: application/json
 
-# {
-#   "name": "test",
-#   "description": "test",
-#   "is_active": true
-# }
-
 {
-  "name": "test update"
+  "name": "Aksesoris Komputer",
+  "description": "Mouse, keyboard, webcam, dan aksesoris",
+  "is_active": true
 }
+
+# {
+#   "name": "Perangkat Komputer"
+# }
 
 ### delete category
 DELETE {{baseUrl}}/categories/1

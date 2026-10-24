@@ -89,7 +89,7 @@ export const ProductController = {
       const id = Number(req.params.id);
       await ProductService.deleteProduct(id);
 
-      sendSuccess(res, "Success delete product", null, 200);
+      sendSuccess(res, "Success deactivate product", null, 200);
     } catch (error) {
       next(error);
     }
