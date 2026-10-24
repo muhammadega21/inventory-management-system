@@ -1,4 +1,3 @@
-import React from "react";
 import PageHeader from "../../components/dashboard/PageHeader";
 import { breadcrumbs } from "../../utils/breadcrumbs";
 import { CircleMinus, FunnelX, Pen, Plus, Search } from "lucide-react";
