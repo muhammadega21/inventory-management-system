@@ -1,22 +1,29 @@
 import {
   Archive,
-  ArrowRight,
-  Ban,
   BuildingComplex,
-  ClipboardCheck,
   FunnelX,
-  House,
   Layers2,
-  MapPin,
-  Pencil,
   Plus,
   Search,
 } from "lucide-react";
 import PageHeader from "../../components/dashboard/PageHeader";
 import { breadcrumbs } from "../../utils/breadcrumbs";
 import Card from "../../components/dashboard/Card";
+import GridWarehouse from "../../components/dashboard/GridWarehouse";
+import { useState } from "react";
+import DetailWarehouse from "../../components/dashboard/DetailWarehouse";
+import { Pagination } from "../../components/Pagination";
 
 const WarehousePage = () => {
+  const [openDetailWarehouse, setOpenDetailWarehouse] = useState(false);
+  function detailWarehouse() {
+    setOpenDetailWarehouse(true);
+  }
+
+  function closeDetailWarehouse() {
+    setOpenDetailWarehouse(false);
+  }
+
   return (
     <div>
       {/* Page Header */}
@@ -92,67 +99,84 @@ const WarehousePage = () => {
 
       {/* Grid */}
       <div className="flex gap-4 mt-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="card bg-base-100 card-md shadow-sm">
-            <div className="card-body">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex items-center gap-3 font-jetBrains">
-                  <span className="py-2 px-3 text-primary text-lg font-semibold bg-primary/40 rounded-lg">
-                    01
-                  </span>
-                  <div>
-                    <h2 className="text-xl font-semibold">
-                      Gudang Jakarta Pusat
-                    </h2>
-                    <p className="text-lg text-primary font-semibold">
-                      WH-00001
-                    </p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1 w-max text-success bg-accent/70 px-4 rounded-full font-semibold text-sm">
-                  Active
-                </span>
-              </div>
-              <ul className="w-[80%] text-base my-3">
-                <li className="flex items-center gap-3 mb-2">
-                  <House size={20} className="text-primary" />
-                  <p className="font-semibold">Jakarta</p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <MapPin size={25} className="text-primary" />
-                  <p>Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta</p>
-                </li>
-              </ul>
-              <div className="flex items-center justify-between gap-4 p-3 rounded bg-primary/10">
-                <div>
-                  <h3 className="text-base font-semibold uppercase text-gray-700 ">
-                    Hubungan Inventaris
-                  </h3>
-                  <div className="flex items-center gap-2 w-max">
-                    <p className="text-xl font-semibold">540 SKU</p>
-                    <span className="text-gray-700">&bull;</span>
-                    <p className="text-gray-700 text-base">36.640 Unit Fisik</p>
-                  </div>
-                </div>
-                <ClipboardCheck size={24} className="text-primary" />
-              </div>
-              <div className="flex justify-between items-center gap-4 border-t border-gray-200 mt-3 pt-3">
-                <p className="flex items-center gap-1 text-primary font-semibold">
-                  Lihat Detail & Stok <ArrowRight size={14} />
-                </p>
-                <div className="flex items-center gap-4">
-                  <span>
-                    <Pencil size={20} />
-                  </span>
-                  <span>
-                    <Ban size={20} />
-                  </span>
-                </div>
-              </div>
-            </div>
+        <div
+          className={
+            openDetailWarehouse
+              ? "grid grid-cols-2 gap-3"
+              : "grid grid-cols-3 gap-3"
+          }
+        >
+          <GridWarehouse
+            title={"Gudang Jakarta Pusat"}
+            code="WH-00001"
+            isActive={true}
+            number={1}
+            city="Jakarta"
+            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
+            sku={540}
+            unitValue={36640}
+            buttonAction={detailWarehouse}
+          />
+          <GridWarehouse
+            title={"Gudang Jakarta Pusat"}
+            code="WH-00001"
+            isActive={true}
+            number={1}
+            city="Jakarta"
+            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
+            sku={540}
+            unitValue={36640}
+            buttonAction={detailWarehouse}
+          />
+          <GridWarehouse
+            title={"Gudang Jakarta Pusat"}
+            code="WH-00001"
+            isActive={true}
+            number={1}
+            city="Jakarta"
+            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
+            sku={540}
+            unitValue={36640}
+            buttonAction={detailWarehouse}
+          />
+        </div>
+
+        {/* Detail Warehouse */}
+        {openDetailWarehouse && (
+          <DetailWarehouse
+            name="Gudang Jakarta Pusat"
+            code="WH-00001"
+            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic adipisci expedita quidem quisquam quis accusamus."
+            address="Kawasan Industri Pulogadung, Jl. Pulo Buaran Raya Blok JJ-4, Jakarta Timur, DKI Jakarta 13920"
+            skuCount={10}
+            totalQuantity={100}
+            link=""
+            isActive
+            buttonCloseAction={closeDetailWarehouse}
+          />
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between bg-white p-4 border-t border-gray-200 shadow mt-3">
+        <div className="flex items-center gap-4">
+          <p className="text-sm">
+            Menampilkan <span className="font-bold">1 - 4</span> dari{" "}
+            <span className="font-bold">8</span> Gudang
+          </p>
+          <div className="flex items-center text-sm gap-2">
+            <label>Tampilkan</label>
+            <select className="select">
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+              <option value={20}>20</option>
+              <option value={25}>25</option>
+              <option value={30}>30</option>
+            </select>
+            per halaman
           </div>
         </div>
-        <div className="w-96 bg-black">detail warehouse</div>
+        <Pagination currentPage={1} totalPages={3} />
       </div>
     </div>
   );
