@@ -37,7 +37,7 @@ const Navbar = () => {
           style={{ anchorName: "--anchor-1" }}
         >
           <div className="flex w-9 h-9 justify-center items-center self-center bg-primary text-sm rounded-full font-semibold text-white">
-            {getInitials(user?.name ?? "User")}
+            {getInitials(user?.name ?? "US")}
           </div>
           <div className="flex flex-col items-start">
             <p className="font-semibold text-sm">{user?.name ?? "Pengguna"}</p>
