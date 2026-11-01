@@ -6,8 +6,8 @@ export interface PaginationMeta {
 }
 
 export interface PaginationQuery {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   search?: string;
 }
 

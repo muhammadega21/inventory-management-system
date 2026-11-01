@@ -1,6 +1,6 @@
-import type { ApiResponse } from "./api";
+import type { ApiResponse, PaginationQuery } from "./api";
 
-export interface CategoryListItem {
+export interface CategoryItem {
   id: number;
   name: string;
   description: string | null;
@@ -9,4 +9,14 @@ export interface CategoryListItem {
   updatedAt: string;
 }
 
-export type CategoryListResponse = ApiResponse<CategoryListItem[]>;
+export type CategorySortBy = "name" | "createdAt";
+
+export interface CategoryQuery extends PaginationQuery {
+  isActive?: boolean;
+  sortBy?: CategorySortBy;
+  sortOrder?: "asc" | "desc";
+  categoryId?: number;
+}
+
+export type CategoryListResponse = ApiResponse<CategoryItem[]>;
+export type CategoryResponse = ApiResponse<CategoryItem>;

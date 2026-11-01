@@ -46,7 +46,7 @@ const ModalProduct = ({ isOpen, onClose, mode, data }: ProductModalProps) => {
     data?.id ?? 0,
     isOpen && mode === "edit",
   );
-  const categoryQuery = useGetCategories();
+  const categoryQuery = useGetCategories({ isActive: true });
 
   const product = detailQuery.data?.data;
   const categories = categoryQuery.data?.data ?? [];

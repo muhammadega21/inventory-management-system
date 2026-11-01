@@ -58,7 +58,7 @@ const ProductPage = () => {
 
   const { data: user } = useMe();
   const summaryQuery = useGetProductSummary();
-  const categoryQuery = useGetCategories();
+  const categoryQuery = useGetCategories({ isActive: true });
   const deleteMutation = useDeleteProduct();
   const isAdmin = user?.role === "ADMIN";
 
@@ -86,15 +86,11 @@ const ProductPage = () => {
   const categories = categoryQuery.data?.data ?? [];
   const summary = summaryQuery.data?.data;
   const totalPages = meta?.totalPages ?? 0;
-  const firstRow = meta && meta.total > 0 ? (page - 1) * limit + 1 : 0;
-  const lastRow = meta ? Math.min(page * limit, meta.total) : 0;
 
-  useEffect(() => {
-    // Jika filter mengurangi jumlah halaman, pindah ke halaman terakhir yang tersedia.
-    if (meta && page > Math.max(meta.totalPages, 1)) {
-      setPage(Math.max(meta.totalPages, 1));
-    }
-  }, [meta, page]);
+  const currentPage =
+    meta && meta.totalPages > 0 ? Math.min(page, meta.totalPages) : page;
+  const firstRow = meta && meta.total > 0 ? (currentPage - 1) * limit + 1 : 0;
+  const lastRow = meta ? Math.min(currentPage * limit, meta.total) : 0;
 
   const openAddModal = () => {
     setProductModal({ isOpen: true, mode: "add" });
@@ -120,6 +116,9 @@ const ProductPage = () => {
 
     try {
       await deleteMutation.mutateAsync(product.id);
+      if (products.length === 1 && page > 1) {
+        setPage((currentPage) => currentPage - 1);
+      }
       showAlert.toast("success", "Produk berhasil diarsipkan");
     } catch (error) {
       showAlert.alert(
@@ -487,7 +486,7 @@ const ProductPage = () => {
           </div>
         </div>
         <Pagination
-          currentPage={page}
+          currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setPage}
         />

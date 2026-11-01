@@ -1,20 +1,47 @@
 import { api } from "../lib/axios";
-import type { CategoryListResponse } from "../type/category";
+import type { ApiResponse } from "../type/api";
+import type {
+  CategoryListResponse,
+  CategoryQuery,
+  CategoryResponse,
+} from "../type/category";
 
-export async function getCategories(isActive?: boolean) {
+export const getCategories = async (params: CategoryQuery) => {
+  const { isActive, ...query } = params;
   const { data } = await api.get<CategoryListResponse>("/categories", {
     params: {
-      page: 1,
-      limit: 100,
+      ...query,
       ...(isActive === undefined ? {} : { is_active: isActive }),
-      sortBy: "name",
-      sortOrder: "asc",
     },
   });
 
   return data;
-}
+};
 
-export async function getActiveCategories() {
-  return getCategories(true);
-}
+export const getCategoryById = async (id: number) => {
+  const { data } = await api.get<CategoryResponse>(`/categories/${id}`);
+  return data;
+};
+
+export const createCategory = async (payload: FormData) => {
+  const { data } = await api.post<CategoryResponse>("/categories", payload, {
+    headers: { "Content-Type": false },
+  });
+
+  return data;
+};
+export const updateCategory = async (id: number, payload: FormData) => {
+  const { data } = await api.patch<CategoryResponse>(
+    `/categories/${id}`,
+    payload,
+    {
+      headers: { "Content-Type": false },
+    },
+  );
+
+  return data;
+};
+export const deleteCategory = async (id: number) => {
+  const { data } = await api.delete<ApiResponse<null>>(`/categories/${id}`);
+  return data;
+};
