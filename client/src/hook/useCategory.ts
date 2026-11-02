@@ -12,6 +12,7 @@ import {
   updateCategory,
 } from "../services/category.service";
 import type { CategoryQuery } from "../type/category";
+import type { CategoryPayload } from "../type/category";
 
 export const useGetCategories = (params: CategoryQuery) => {
   return useQuery({
@@ -49,7 +50,13 @@ export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: FormData }) =>
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<CategoryPayload>;
+    }) =>
       updateCategory(id, payload),
 
     onSuccess: async (_, variables) => {

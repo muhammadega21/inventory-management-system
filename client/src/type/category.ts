@@ -9,6 +9,12 @@ export interface CategoryItem {
   updatedAt: string;
 }
 
+export interface CategoryPayload {
+  name: string;
+  description?: string;
+  is_active: boolean;
+}
+
 export type CategorySortBy = "name" | "createdAt";
 
 export interface CategoryQuery extends PaginationQuery {

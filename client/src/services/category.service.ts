@@ -3,6 +3,7 @@ import type { ApiResponse } from "../type/api";
 import type {
   CategoryListResponse,
   CategoryQuery,
+  CategoryPayload,
   CategoryResponse,
 } from "../type/category";
 
@@ -23,20 +24,18 @@ export const getCategoryById = async (id: number) => {
   return data;
 };
 
-export const createCategory = async (payload: FormData) => {
-  const { data } = await api.post<CategoryResponse>("/categories", payload, {
-    headers: { "Content-Type": false },
-  });
+export const createCategory = async (payload: CategoryPayload) => {
+  const { data } = await api.post<CategoryResponse>("/categories", payload);
 
   return data;
 };
-export const updateCategory = async (id: number, payload: FormData) => {
+export const updateCategory = async (
+  id: number,
+  payload: Partial<CategoryPayload>,
+) => {
   const { data } = await api.patch<CategoryResponse>(
     `/categories/${id}`,
     payload,
-    {
-      headers: { "Content-Type": false },
-    },
   );
 
   return data;

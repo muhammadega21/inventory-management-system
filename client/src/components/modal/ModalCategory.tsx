@@ -15,6 +15,7 @@ import { showAlert } from "../../utils/swal";
 import { getApiErrorMessage } from "../../utils/apiError";
 import Modal from "./Modal";
 import Input from "../forms/Input";
+import Textarea from "../forms/Textarea";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -84,11 +85,11 @@ const ModalCategory = ({ isOpen, onClose, mode, data }: CategoryModalProps) => {
       return;
     }
 
-    const payload = new FormData();
-
-    payload.append("name", formData.name.trim());
-    payload.append("description", formData.description?.trim() ?? "");
-    payload.append("is_active", String(formData.is_active));
+    const payload = {
+      name: formData.name.trim(),
+      description: formData.description?.trim() ?? "",
+      is_active: formData.is_active,
+    };
 
     try {
       if (mode === "add") {
@@ -165,6 +166,34 @@ const ModalCategory = ({ isOpen, onClose, mode, data }: CategoryModalProps) => {
             register={register("name")}
             error={errors.name?.message}
           />
+          <Textarea
+            name="description"
+            id="category-description"
+            label="Deskripsi"
+            rows={3}
+            maxLength={500}
+            placeholder="Deskripsi singkat kategori (opsional)"
+            register={register("description")}
+            error={errors.description?.message}
+          />
+          <label
+            htmlFor="category-active"
+            className="flex cursor-pointer items-center gap-3 rounded-lg border border-base-300 p-3"
+          >
+            <input
+              id="category-active"
+              type="checkbox"
+              className="checkbox checkbox-primary"
+              disabled={isSaving}
+              {...register("is_active")}
+            />
+            <span>
+              <span className="block font-semibold">Kategori aktif</span>
+              <span className="text-xs text-gray-500">
+                Kategori aktif dapat digunakan pada proses operasional.
+              </span>
+            </span>
+          </label>
         </fieldset>
       )}
     </Modal>
