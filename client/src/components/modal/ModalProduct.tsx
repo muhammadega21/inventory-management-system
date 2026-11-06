@@ -185,7 +185,7 @@ const ModalProduct = ({ isOpen, onClose, mode, data }: ProductModalProps) => {
       {mode === "edit" && detailQuery.isLoading ? (
         <div className="flex items-center justify-center gap-3 py-12">
           <span className="loading loading-spinner loading-md" />
-          <span>Memuat detail produk…</span>
+          <span>Memuat detail produk...</span>
         </div>
       ) : detailQuery.isError && mode === "edit" ? (
         <div className="py-6">

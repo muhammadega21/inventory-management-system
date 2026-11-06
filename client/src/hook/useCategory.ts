@@ -36,12 +36,10 @@ export const useCreateCategory = () => {
   return useMutation({
     mutationFn: createCategory,
 
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["categories", "list"],
-        }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "list"],
+      });
     },
   });
 };
@@ -56,8 +54,7 @@ export const useUpdateCategory = () => {
     }: {
       id: number;
       payload: Partial<CategoryPayload>;
-    }) =>
-      updateCategory(id, payload),
+    }) => updateCategory(id, payload),
 
     onSuccess: async (_, variables) => {
       await Promise.all([
@@ -78,12 +75,10 @@ export const useDeleteCategory = () => {
   return useMutation({
     mutationFn: deleteCategory,
 
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["categories", "list"],
-        }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "list"],
+      });
     },
   });
 };

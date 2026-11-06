@@ -25,7 +25,7 @@ const DetailWarehouse = ({
   buttonCloseAction,
 }: DetailWarehouseProps) => {
   return (
-    <div className="w-96 bg-white p-4 rounded-md shadow">
+    <div className="w-96 2xl:w-auto bg-white p-4 rounded-md shadow">
       <div className="border-b border-gray-200 pb-3">
         <div className="flex justify-between items-center ">
           <div className="flex items-center gap-1">

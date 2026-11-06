@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useDebounce } from "use-debounce";
 import PageHeader from "../../components/dashboard/PageHeader";
 import { Pagination } from "../../components/Pagination";
 import useDocumentTitle from "../../hook/useDocumentTitle";
@@ -22,7 +23,7 @@ const CategoryPage = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search.trim(), 400);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
@@ -34,14 +35,6 @@ const CategoryPage = () => {
   });
 
   const deleteMutation = useDeleteCategory();
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-    }, 400);
-
-    return () => window.clearTimeout(timer);
-  }, [search]);
 
   const categoryQuery = useGetCategories({
     page,
@@ -100,7 +93,6 @@ const CategoryPage = () => {
 
   const handleResetFilter = () => {
     setSearch("");
-    setDebouncedSearch("");
     setStatusFilter("all");
     setSortBy("createdAt");
     setSortOrder("desc");

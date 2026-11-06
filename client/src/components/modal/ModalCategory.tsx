@@ -141,7 +141,7 @@ const ModalCategory = ({ isOpen, onClose, mode, data }: CategoryModalProps) => {
       {mode === "edit" && detailQuery.isLoading ? (
         <div className="flex items-center justify-center gap-3 py-12">
           <span className="loading loading-spinner loading-md" />
-          <span>Memuat detail kategori…</span>
+          <span>Memuat detail kategori...</span>
         </div>
       ) : detailQuery.isError && mode === "edit" ? (
         <div className="py-6">

@@ -24,13 +24,14 @@ import {
   useGetProducts,
   useGetProductSummary,
 } from "../../hook/useProduct";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ProductListItem, ProductSortBy } from "../../type/product";
 import { useGetCategories } from "../../hook/useCategory";
 import { getApiErrorMessage } from "../../utils/apiError";
 import { useMe } from "../../hook/useAuth";
 import { Pagination } from "../../components/Pagination";
 import { showAlert } from "../../utils/swal";
+import { useDebounce } from "use-debounce";
 
 interface ProductModalState {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const ProductPage = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search.trim(), 400);
   const [categoryId, setCategoryId] = useState("all");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
@@ -61,15 +62,6 @@ const ProductPage = () => {
   const categoryQuery = useGetCategories({ isActive: true });
   const deleteMutation = useDeleteProduct();
   const isAdmin = user?.role === "ADMIN";
-
-  // Pencarian dikirim setelah pengguna berhenti mengetik selama 400 ms.
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-    }, 400);
-
-    return () => window.clearTimeout(timer);
-  }, [search]);
 
   const productQuery = useGetProducts({
     page,
@@ -131,7 +123,6 @@ const ProductPage = () => {
 
   const handleResetFilter = () => {
     setSearch("");
-    setDebouncedSearch("");
     setCategoryId("all");
     setStatusFilter("all");
     setSortBy("createdAt");
