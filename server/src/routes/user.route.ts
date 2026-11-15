@@ -16,6 +16,7 @@ const router = express.Router();
 router.use(isAuth, authorize("ADMIN"));
 
 router.get("/", UserController.getAllUsers);
+router.get("/summary", UserController.getUserSummary);
 router.get("/:id", validateParams(idParamSchema), UserController.getUserById);
 router.post(
   "/",

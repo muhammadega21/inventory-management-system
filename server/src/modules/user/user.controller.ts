@@ -14,6 +14,15 @@ export const UserController = {
       next(error);
     }
   },
+  async getUserSummary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const summary = await UserService.getUserSummary();
+
+      return sendSuccess(res, "Success get user summary", summary, 200);
+    } catch (error) {
+      return next(error);
+    }
+  },
   async getUserById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);

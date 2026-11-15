@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { paginationMeta } from "../../common/utils/helper.js";
 import { prisma } from "../../lib/prisma.js";
@@ -54,6 +55,7 @@ export const UserService = {
     isActive?: boolean;
     sortBy?: string;
     sortOrder: "asc" | "desc";
+    role?: UserRole;
   }) {
     const where: any = {};
 
@@ -68,6 +70,10 @@ export const UserService = {
       where.is_active = query.isActive;
     }
 
+    if (query.role) {
+      where.role = query.role;
+    }
+
     return getPaginatedUsers(
       where,
       query.page,
@@ -75,6 +81,33 @@ export const UserService = {
       query.sortBy,
       query.sortOrder,
     );
+  },
+
+  async getUserSummary() {
+    const [usersCount, adminCount, staffCount, activeUsers, inactiveUsers] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({
+          where: { role: UserRole.ADMIN },
+        }),
+        prisma.user.count({
+          where: { role: UserRole.STAFF },
+        }),
+        prisma.user.count({
+          where: { is_active: true },
+        }),
+        prisma.user.count({
+          where: { is_active: false },
+        }),
+      ]);
+
+    return {
+      usersCount,
+      adminCount,
+      staffCount,
+      activeUsers,
+      inactiveUsers,
+    };
   },
 
   async findUserById(id: number) {

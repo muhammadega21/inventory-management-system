@@ -4,6 +4,9 @@
 GET {{baseUrl}}/users
 Content-Type: application/json
 
+### User Summary
+GET {{baseUrl}}/users/summary
+
 ### get user by id
 GET {{baseUrl}}/users/4
 Content-Type: application/json

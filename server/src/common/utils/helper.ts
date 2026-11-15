@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { Request } from "express";
 
 export interface CommonQuery {
@@ -9,6 +10,7 @@ export interface CommonQuery {
   sortBy?: string;
   sortOrder: "asc" | "desc";
   categoryId?: number;
+  role?: UserRole;
 }
 
 export function paginationMeta(total: number, page: number, limit?: number) {
@@ -44,6 +46,18 @@ const parseActiveFilter = (value: unknown): boolean | undefined => {
   return undefined;
 };
 
+// memparsing filter role user, validasi terhadap UserRole (ADMIN | STAFF)
+const parseRoleFilter = (value: unknown): UserRole | undefined => {
+  if (typeof value !== "string") return undefined;
+
+  const normalized = value.trim().toUpperCase();
+
+  if (normalized === "ADMIN") return UserRole.ADMIN;
+  if (normalized === "STAFF") return UserRole.STAFF;
+
+  return undefined;
+};
+
 export const getCommonQuery = (req: Request): CommonQuery => {
   const searchValue =
     typeof req.query.search === "string" ? req.query.search.trim() : "";
@@ -62,5 +76,6 @@ export const getCommonQuery = (req: Request): CommonQuery => {
     sortBy: typeof req.query.sortBy === "string" ? req.query.sortBy : undefined,
     sortOrder,
     categoryId,
+    role: parseRoleFilter(req.query.role),
   };
 };

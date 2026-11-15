@@ -349,7 +349,7 @@ const ProductPage = () => {
                         className="py-10 text-center"
                       >
                         <span className="loading loading-spinner loading-sm mr-2" />{" "}
-                        Memuat produk…
+                        Memuat produk...
                       </td>
                     </tr>
                   ) : products.length === 0 ? (
