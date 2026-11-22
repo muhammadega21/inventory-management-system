@@ -135,6 +135,10 @@ const UserPage = () => {
     setPage(1);
   };
 
+  const retrySummary = () => {
+    void summaryQuery.refetch();
+  };
+
   return (
     <div>
       {/* Modal */}
@@ -166,6 +170,10 @@ const UserPage = () => {
           icon={Users}
           iconColor="text-primary"
           value={`${summary?.usersCount ?? 0} User`}
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
         <Card
           title="Role Admin"
@@ -173,6 +181,10 @@ const UserPage = () => {
           icon={ShieldAlert}
           iconColor="text-primary"
           value={`${summary?.adminCount ?? 0} Admin`}
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
         <Card
           title="Role Staff"
@@ -180,6 +192,10 @@ const UserPage = () => {
           icon={IdCard}
           iconColor="text-primary"
           value={`${summary?.staffCount ?? 0} Staff`}
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
         <Card
           title="Integrasi Status"
@@ -189,6 +205,10 @@ const UserPage = () => {
           value={summary?.activeUsers ?? 0}
           sideText={`Aktif / ${summary?.inactiveUsers ?? 0} Nonaktif`}
           sideTextClass="text-base!"
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
       </div>
       {/* Filter */}

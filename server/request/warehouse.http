@@ -4,7 +4,7 @@
 GET {{baseUrl}}/warehouses
 Content-Type: application/json
 
-### get warehouse summary (summary cards)
+### get warehouse summary (all facilities, stocked SKU-locations, recorded quantity)
 GET {{baseUrl}}/warehouses/summary
 Content-Type: application/json
 

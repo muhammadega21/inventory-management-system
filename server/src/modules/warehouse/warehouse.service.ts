@@ -136,6 +136,7 @@ export const WarehouseService = {
         prisma.warehouse.count({ where: { is_active: false } }),
         prisma.inventory.aggregate({
           where: {
+            quantity: { gt: 0 },
             product: { is_active: true },
             warehouse: { is_active: true },
           },

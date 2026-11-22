@@ -13,26 +13,168 @@ import GridWarehouse from "../../components/dashboard/GridWarehouse";
 import { useState } from "react";
 import DetailWarehouse from "../../components/dashboard/DetailWarehouse";
 import { Pagination } from "../../components/Pagination";
+import {
+  useDeleteWarehouse,
+  useGetWarehouseById,
+  useGetWarehouses,
+  useGetWarehouseSummary,
+} from "../../hook/useWareshouse";
+import useDocumentTitle from "../../hook/useDocumentTitle";
+import { useDebounce } from "use-debounce";
+import type {
+  WarehouseListItem,
+  WarehouseSortBy,
+} from "../../type/warehouse";
+import { showAlert } from "../../utils/swal";
+import { getApiErrorMessage } from "../../utils/apiError";
+import ModalWarehouse from "../../components/modal/ModalWarehouse";
+
+interface WarehouseModalState {
+  isOpen: boolean;
+  mode: "add" | "edit";
+  warehouse?: WarehouseListItem;
+}
 
 const WarehousePage = () => {
-  const [openDetailWarehouse, setOpenDetailWarehouse] = useState(false);
-  function detailWarehouse() {
-    setOpenDetailWarehouse(true);
-  }
+  useDocumentTitle("Warehouse Page");
 
-  function closeDetailWarehouse() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search.trim(), 400);
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+  const [sortBy, setSortBy] = useState<WarehouseSortBy>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [warehouseModal, setWarehouseModal] = useState<WarehouseModalState>({
+    isOpen: false,
+    mode: "add",
+  });
+  const [openDetailWarehouse, setOpenDetailWarehouse] = useState(false);
+  const [selectedWarehouse, setSelectedWarehouse] =
+    useState<WarehouseListItem | null>(null);
+
+  const summaryQuery = useGetWarehouseSummary();
+  const deleteMutation = useDeleteWarehouse();
+
+  const warehouseQuery = useGetWarehouses({
+    page,
+    limit,
+    search: debouncedSearch || undefined,
+    isActive: statusFilter === "all" ? undefined : statusFilter === "active",
+    sortBy,
+    sortOrder,
+  });
+  const warehouseDetailQuery = useGetWarehouseById(
+    selectedWarehouse?.id ?? 0,
+    openDetailWarehouse,
+  );
+
+  const warehouses = warehouseQuery.data?.data ?? [];
+  const warehouseDetail = warehouseDetailQuery.data?.data;
+  const meta = warehouseQuery.data?.meta;
+  const totalPages = meta?.totalPages ?? 0;
+  const summary = summaryQuery.data?.data;
+
+  const currentPage =
+    meta && meta.totalPages > 0 ? Math.min(page, meta.totalPages) : page;
+  const firstRow = meta && meta.total > 0 ? (currentPage - 1) * limit + 1 : 0;
+  const lastRow = meta ? Math.min(currentPage * limit, meta.total) : 0;
+
+  const openAddModal = () => {
+    setWarehouseModal({ isOpen: true, mode: "add" });
+  };
+
+  const openEditModal = (warehouse: WarehouseListItem) => {
+    setWarehouseModal({ isOpen: true, mode: "edit", warehouse });
+  };
+
+  const closeWarehouseModal = () => {
+    setWarehouseModal({ isOpen: false, mode: "add" });
+  };
+
+  const handleArchiveWarehouse = async (warehouse: WarehouseListItem) => {
+    const confirmed = await showAlert.confirmAction(
+      "Arsipkan warehouse ini?",
+      `Warehouse "${warehouse.name}" akan dinonaktifkan. Warehouse tetap tercatat dalam riwayat inventaris.`,
+      "Ya, arsipkan",
+      "Batal",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteMutation.mutateAsync(warehouse.id);
+      if (warehouses.length === 1 && page > 1) {
+        setPage((currentPage) => currentPage - 1);
+      }
+      showAlert.toast("success", "Warehouse berhasil diarsipkan");
+    } catch (error) {
+      showAlert.alert(
+        "error",
+        "Gagal mengarsipkan warehouse",
+        getApiErrorMessage(error),
+      );
+    }
+  };
+
+  const handleResetFilter = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setSortBy("createdAt");
+    setSortOrder("desc");
+    setLimit(10);
+    setPage(1);
+  };
+
+  const handleSortChange = (value: string) => {
+    if (value === "name-desc") {
+      setSortBy("name");
+      setSortOrder("desc");
+    } else if (value === "createdAt-desc") {
+      setSortBy("createdAt");
+      setSortOrder("desc");
+    } else {
+      setSortBy("name");
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
+  const retrySummary = () => {
+    void summaryQuery.refetch();
+  };
+
+  const detailWarehouse = () => {
+    setOpenDetailWarehouse(true);
+  };
+
+  const closeDetailWarehouse = () => {
     setOpenDetailWarehouse(false);
-  }
+    setSelectedWarehouse(null);
+  };
 
   return (
     <div>
+      {/* Modal */}
+      <ModalWarehouse
+        isOpen={warehouseModal.isOpen}
+        onClose={closeWarehouseModal}
+        mode={warehouseModal.mode}
+        data={warehouseModal.warehouse}
+      />
       {/* Page Header */}
       <PageHeader
         title="Fasilitas Gudang"
         description="Master data lokasi fisik penyimpanan barang untuk pemantauan posisi stok dan mutasi inventaris."
         breadcrumbs={breadcrumbs.warehouses}
       >
-        <button type="button" className="btn btn-primary btn-sm">
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={openAddModal}
+        >
           <Plus size={16} /> Tambah Gudang
         </button>
       </PageHeader>
@@ -41,27 +183,43 @@ const WarehousePage = () => {
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card
           title="Total Fasilitas"
-          value={4}
-          sideText="Titik Logistik Aktif"
-          description="100% Siap Operasi Fisik"
+          value={summary?.totalWarehouses}
+          sideText="lokasi"
+          description={
+            summary
+              ? `${summary.activeWarehouses} aktif · ${summary.inactiveWarehouses} nonaktif`
+              : "Jumlah seluruh fasilitas gudang terdaftar"
+          }
           icon={BuildingComplex}
           iconColor="text-gray-700"
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
         <Card
-          title="Cakupan Suku"
-          value={1248}
-          sideText="Kombinasi SKU/Lokasi"
-          description="Tersebar di 4 Hub Pulau Jawa & Sumatera"
+          title="Cakupan SKU"
+          value={summary?.skuLocationCount}
+          sideText="SKU-Lokasi"
+          description="Kombinasi SKU yang memiliki stok di fasilitas aktif"
           icon={Archive}
           iconColor="text-gray-700"
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
         <Card
-          title="Total Stok Fisik Terdata"
-          value={84320}
-          sideText="Unit"
-          description="Posisi terkini konsolidasi realtime"
+          title="Total Kuantitas Tercatat"
+          value={summary?.totalQuantity}
+          sideText="kuantitas"
+          description="Stok sistem di fasilitas aktif; satuan mengikuti satuan tiap produk"
           icon={Layers2}
           iconColor="text-gray-700"
+          isLoading={summaryQuery.isLoading}
+          isFetching={summaryQuery.isFetching}
+          isError={summaryQuery.isError}
+          onRetry={retrySummary}
         />
       </div>
 
@@ -79,79 +237,163 @@ const WarehousePage = () => {
               required
               placeholder="Cari nama nama gudang, kode gudang, kota atau lokasi gudang"
               className="w-full"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.currentTarget.value);
+                setPage(1);
+              }}
             />
           </label>
         </div>
-        <select className="select" aria-label="Filter status">
+        <select
+          className="select"
+          aria-label="Filter status"
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.currentTarget.value as typeof statusFilter);
+            setPage(1);
+          }}
+        >
           <option value="all">Semua status</option>
           <option value="active">Aktif</option>
           <option value="inactive">Nonaktif</option>
         </select>
-        <select className="select" aria-label="Urutkan produk">
+        <select
+          className="select"
+          aria-label="Urutkan produk"
+          value={`${sortBy}-${sortOrder}`}
+          onChange={(event) => handleSortChange(event.currentTarget.value)}
+        >
           <option value="createdAt-desc">Terbaru ditambahkan</option>
           <option value="name-asc">Nama (A–Z)</option>
           <option value="name-desc">Nama (Z–A)</option>
         </select>
-        <span className="badge text-gray-700 cursor-pointer">
+        <span
+          className="badge text-gray-700 cursor-pointer"
+          onClick={handleResetFilter}
+        >
           <FunnelX size={14} /> Reset Filter
         </span>
       </div>
 
       {/* Grid */}
-      <div className="flex gap-4 mt-4">
+      <div className="flex items-start gap-4 mt-4">
         <div
           className={
             openDetailWarehouse
-              ? "grid grid-cols-2 gap-3"
-              : "grid grid-cols-3 gap-3"
+              ? "grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2"
+              : "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
           }
         >
-          <GridWarehouse
-            title={"Gudang Jakarta Pusat"}
-            code="WH-00001"
-            isActive={true}
-            number={1}
-            city="Jakarta"
-            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
-            sku={540}
-            unitValue={36640}
-            buttonAction={detailWarehouse}
-          />
-          <GridWarehouse
-            title={"Gudang Jakarta Pusat"}
-            code="WH-00001"
-            isActive={true}
-            number={1}
-            city="Jakarta"
-            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
-            sku={540}
-            unitValue={36640}
-            buttonAction={detailWarehouse}
-          />
-          <GridWarehouse
-            title={"Gudang Jakarta Pusat"}
-            code="WH-00001"
-            isActive={true}
-            number={1}
-            city="Jakarta"
-            address="Kawasan Industri Pulogadung, Jakarta Timur, DKI Jakarta"
-            sku={540}
-            unitValue={36640}
-            buttonAction={detailWarehouse}
-          />
+          {warehouseQuery.isError && !warehouseQuery.data ? (
+            <div className="col-span-full p-8 text-center" role="alert">
+              <p className="font-semibold">Daftar warehouse gagal dimuat.</p>
+              <p className="mt-1 text-sm text-gray-600">
+                {getApiErrorMessage(warehouseQuery.error)}
+              </p>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm mt-4"
+                onClick={() => {
+                  void warehouseQuery.refetch();
+                }}
+              >
+                Coba lagi
+              </button>
+            </div>
+          ) : (
+            <>
+              {warehouseQuery.isError && warehouseQuery.data && (
+                <p
+                  className="col-span-full px-4 pt-3 text-sm text-warning"
+                  role="status"
+                >
+                  Pembaruan gagal. Data terakhir yang berhasil dimuat tetap
+                  ditampilkan.
+                </p>
+              )}
+              {warehouseQuery.isFetching && !warehouseQuery.isLoading && (
+                <p
+                  className="col-span-full px-4 pt-3 text-sm text-gray-600"
+                  role="status"
+                >
+                  Memuat pembaruan warehouse...
+                </p>
+              )}
+              {warehouseQuery.isLoading ? (
+                <div className="col-span-full py-10 text-center">
+                  <span className="loading loading-spinner loading-sm mr-2" />
+                  Memuat warehouse...
+                </div>
+              ) : warehouses.length === 0 ? (
+                <div className="col-span-full py-12 text-center">
+                  <p className="font-semibold">Warehouse tidak ditemukan</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Coba ubah kata kunci atau reset filter
+                  </p>
+                </div>
+              ) : (
+                warehouses.map((warehouse, index) => (
+                  <GridWarehouse
+                    key={warehouse.id}
+                    title={warehouse.name}
+                    code={warehouse.code}
+                    isActive={warehouse.is_active}
+                    number={currentPage * limit - limit + index + 1}
+                    city={warehouse.city}
+                    address={warehouse.address}
+                    sku={warehouse.inventorySummary.skuCount}
+                    unitValue={warehouse.inventorySummary.totalQuantity}
+                    buttonAction={() => {
+                      setSelectedWarehouse(warehouse);
+                      detailWarehouse();
+                    }}
+                    editAction={() => openEditModal(warehouse)}
+                    archiveAction={() => void handleArchiveWarehouse(warehouse)}
+                    isArchiveDisabled={
+                      !warehouse.is_active || deleteMutation.isPending
+                    }
+                  />
+                ))
+              )}
+            </>
+          )}
         </div>
 
         {/* Detail Warehouse */}
-        {openDetailWarehouse && (
+        {openDetailWarehouse && selectedWarehouse && (
           <DetailWarehouse
-            name="Gudang Jakarta Pusat"
-            code="WH-00001"
-            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic adipisci expedita quidem quisquam quis accusamus."
-            address="Kawasan Industri Pulogadung, Jl. Pulo Buaran Raya Blok JJ-4, Jakarta Timur, DKI Jakarta 13920"
-            skuCount={10}
-            totalQuantity={100}
-            link=""
-            isActive
+            name={warehouseDetail?.name ?? selectedWarehouse.name}
+            code={warehouseDetail?.code ?? selectedWarehouse.code}
+            description={warehouseDetail?.description ?? ""}
+            address={warehouseDetail?.address ?? selectedWarehouse.address}
+            skuCount={
+              warehouseDetail?.inventorySummary.skuCount ??
+              selectedWarehouse.inventorySummary.skuCount
+            }
+            totalQuantity={
+              warehouseDetail?.inventorySummary.totalQuantity ??
+              selectedWarehouse.inventorySummary.totalQuantity
+            }
+            topProducts={warehouseDetail?.topProducts ?? []}
+            link="/inventories"
+            isActive={
+              warehouseDetail?.is_active ?? selectedWarehouse.is_active
+            }
+            isLoading={warehouseDetailQuery.isLoading && !warehouseDetail}
+            errorMessage={
+              warehouseDetailQuery.isError && !warehouseDetail
+                ? getApiErrorMessage(warehouseDetailQuery.error)
+                : undefined
+            }
+            refreshErrorMessage={
+              warehouseDetailQuery.isError && warehouseDetail
+                ? getApiErrorMessage(warehouseDetailQuery.error)
+                : undefined
+            }
+            onRetry={() => {
+              void warehouseDetailQuery.refetch();
+            }}
             buttonCloseAction={closeDetailWarehouse}
           />
         )}
@@ -161,12 +403,26 @@ const WarehousePage = () => {
       <div className="flex items-center justify-between bg-white p-4 border-t border-gray-200 shadow mt-3">
         <div className="flex items-center gap-4">
           <p className="text-sm">
-            Menampilkan <span className="font-bold">1 - 4</span> dari{" "}
-            <span className="font-bold">8</span> Gudang
+            Menampilkan{" "}
+            <span className="font-bold">
+              {firstRow}–{lastRow}
+            </span>{" "}
+            dari{" "}
+            <span className="font-bold">
+              {(meta?.total ?? 0).toLocaleString("id-ID")}
+            </span>{" "}
+            warehouse
           </p>
           <div className="flex items-center text-sm gap-2">
             <label>Tampilkan</label>
-            <select className="select">
+            <select
+              className="select"
+              value={limit}
+              onChange={(event) => {
+                setLimit(Number(event.currentTarget.value));
+                setPage(1);
+              }}
+            >
               <option value={10}>10</option>
               <option value={15}>15</option>
               <option value={20}>20</option>
@@ -176,7 +432,11 @@ const WarehousePage = () => {
             per halaman
           </div>
         </div>
-        <Pagination currentPage={1} totalPages={3} />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

@@ -14,9 +14,12 @@ interface GridProps {
   number: number;
   city: string;
   address: string;
-  sku: number;
-  unitValue: number;
+  sku?: number;
+  unitValue?: number;
   buttonAction?: () => void;
+  editAction?: () => void;
+  archiveAction?: () => void;
+  isArchiveDisabled?: boolean;
 }
 
 const GridWarehouse = ({
@@ -29,14 +32,17 @@ const GridWarehouse = ({
   sku,
   unitValue,
   buttonAction,
+  editAction,
+  archiveAction,
+  isArchiveDisabled = false,
 }: GridProps) => {
   return (
     <div className="card bg-base-100 card-md shadow-sm h-max">
       <div className="card-body">
         <div className="flex justify-between items-start gap-4">
-          <div className="flex items-center gap-3 font-jetBrains">
+          <div className="flex items-start gap-3 font-jetBrains">
             <span className="py-2 px-3 text-primary text-lg font-semibold bg-primary/20 rounded-lg">
-              0{number}
+              {String(number).padStart(2, "0")}
             </span>
             <div>
               <h2 className="text-xl font-semibold">{title}</h2>
@@ -79,17 +85,30 @@ const GridWarehouse = ({
         <div className="flex justify-between items-center gap-4 border-t border-gray-200 mt-3 pt-3">
           <button
             onClick={buttonAction}
-            className="flex items-center gap-1 text-primary font-semibold"
+            className="flex items-center gap-1 text-primary font-semibold cursor-pointer"
           >
             Lihat Detail & Stok <ArrowRight size={14} />
           </button>
           <div className="flex items-center gap-4">
-            <span>
+            <button
+              type="button"
+              className="text-warning cursor-pointer"
+              title={`Edit ${title}`}
+              aria-label={`Edit ${title}`}
+              onClick={editAction}
+            >
               <Pencil size={20} />
-            </span>
-            <span>
+            </button>
+            <button
+              type="button"
+              className="text-error cursor-pointer"
+              title="Arsipkan warehouse"
+              aria-label={`Arsipkan ${title}`}
+              disabled={isArchiveDisabled}
+              onClick={archiveAction}
+            >
               <Ban size={20} />
-            </span>
+            </button>
           </div>
         </div>
       </div>

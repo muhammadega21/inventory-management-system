@@ -1,5 +1,6 @@
 import { NotebookText, PackageSearch, X } from "lucide-react";
 import { Link } from "react-router";
+import type { WarehouseDetail } from "../../type/warehouse";
 
 interface DetailWarehouseProps {
   name: string;
@@ -9,7 +10,12 @@ interface DetailWarehouseProps {
   address: string;
   skuCount: number;
   totalQuantity: number;
+  topProducts: WarehouseDetail["topProducts"];
   link: string;
+  isLoading: boolean;
+  errorMessage?: string;
+  refreshErrorMessage?: string;
+  onRetry: () => void;
   buttonCloseAction: () => void;
 }
 
@@ -21,11 +27,16 @@ const DetailWarehouse = ({
   address,
   skuCount,
   totalQuantity,
+  topProducts,
   link,
+  isLoading,
+  errorMessage,
+  refreshErrorMessage,
+  onRetry,
   buttonCloseAction,
 }: DetailWarehouseProps) => {
   return (
-    <div className="w-96 2xl:w-auto bg-white p-4 rounded-md shadow">
+    <div className="w-96 shrink-0 bg-white p-4 rounded-md shadow border-l-3 border-primary">
       <div className="border-b border-gray-200 pb-3">
         <div className="flex justify-between items-center ">
           <div className="flex items-center gap-1">
@@ -81,33 +92,66 @@ const DetailWarehouse = ({
         </div>
       </div>
 
+      {refreshErrorMessage && (
+        <div className="mt-3 text-sm text-warning" role="status">
+          <p>
+            Pembaruan gagal. Data terakhir yang berhasil dimuat tetap
+            ditampilkan. {refreshErrorMessage}
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm mt-2"
+            onClick={onRetry}
+          >
+            Coba lagi
+          </button>
+        </div>
+      )}
+
       <div className="mt-3 text-sm">
         <div className="flex items-center justify-between font-semibold px-3">
           <h2>Top 3 SKU</h2>
           <p>Stok terbanyak</p>
         </div>
         <ul className="mt-2">
-          <li className="flex justify-between items-center bg-primary/10 p-3 rounded mb-2">
-            <div>
-              <h3 className="max-w-36">Wireless Barcode Scanner</h3>
-              <span className="text-primary font-semibold">PROD-00004</span>
-            </div>
-            <p className="text-base font-semibold">50 pcs</p>
-          </li>
-          <li className="flex justify-between items-center bg-primary/10 p-3 rounded mb-2">
-            <div>
-              <h3 className="max-w-36">Wireless Barcode Scanner</h3>
-              <span className="text-primary font-semibold">PROD-00004</span>
-            </div>
-            <p className="text-base font-semibold">50 pcs</p>
-          </li>
-          <li className="flex justify-between items-center bg-primary/10 p-3 rounded mb-2">
-            <div>
-              <h3 className="max-w-36">Wireless Barcode Scanner</h3>
-              <span className="text-primary font-semibold">PROD-00004</span>
-            </div>
-            <p className="text-base font-semibold">50 pcs</p>
-          </li>
+          {isLoading ? (
+            <li className="p-3 text-center text-gray-600">
+              <span className="loading loading-spinner loading-sm mr-2" />
+              Memuat detail warehouse...
+            </li>
+          ) : errorMessage ? (
+            <li className="rounded bg-error/10 p-3 text-center" role="alert">
+              <p>{errorMessage}</p>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm mt-2"
+                onClick={onRetry}
+              >
+                Coba lagi
+              </button>
+            </li>
+          ) : topProducts.length > 0 ? (
+            topProducts.map((product) => (
+              <li
+                key={product.id}
+                className="mb-2 flex items-center justify-between rounded bg-primary/10 p-3"
+              >
+                <div>
+                  <h3 className="max-w-36">{product.name}</h3>
+                  <span className="font-semibold text-primary">
+                    {product.sku}
+                  </span>
+                </div>
+                <p className="text-base font-semibold">
+                  {product.quantity.toLocaleString("id-ID")} {product.unit}
+                </p>
+              </li>
+            ))
+          ) : (
+            <li className="p-3 text-center text-gray-600">
+              Belum ada stok di warehouse ini.
+            </li>
+          )}
         </ul>
       </div>
 

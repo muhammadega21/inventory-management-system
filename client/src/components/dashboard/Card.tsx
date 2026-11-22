@@ -20,7 +20,7 @@ interface CardProps {
 const Card = ({
   title,
   description,
-  value = 0,
+  value,
   valueColor,
   sideText,
   sideTextClass,

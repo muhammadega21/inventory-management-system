@@ -1,7 +1,19 @@
 import type { ApiResponse, PaginationQuery } from "./api";
-import type { ProductInventory } from "./warehouse";
 
 export type StockType = "IN" | "OUT" | "ADJUSTMENT";
+
+export type ProductInventory = {
+  id: number | null;
+  quantity: number;
+  warehouse: {
+    id: number;
+    name: string;
+    code: string;
+    city: string;
+    address: string;
+    is_active: boolean;
+  };
+};
 
 export interface ProductCategory {
   id: number;
