@@ -405,7 +405,7 @@ const ProductPage = () => {
                         </td>
                         <td>
                           <div className="flex gap-2">
-                            <Link to={""}>
+                            <Link to={`/products/${item.slug}`}>
                               <Eye size={16} />
                             </Link>
                             <button

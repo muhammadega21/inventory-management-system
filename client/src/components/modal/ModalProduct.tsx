@@ -2,7 +2,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { useGetCategories } from "../../hook/useCategory";
 import {
   useCreateProduct,
-  useGetProductById,
+  useGetProductBySlug,
   useUpdateProduct,
 } from "../../hook/useProduct";
 import {
@@ -42,8 +42,8 @@ const ModalProduct = ({ isOpen, onClose, mode, data }: ProductModalProps) => {
   const updateMutation = useUpdateProduct();
 
   // Detail diambil saat mode edit karena list tidak memuat semua field produk.
-  const detailQuery = useGetProductById(
-    data?.id ?? 0,
+  const detailQuery = useGetProductBySlug(
+    data?.slug ?? "",
     isOpen && mode === "edit",
   );
   const categoryQuery = useGetCategories({ isActive: true });

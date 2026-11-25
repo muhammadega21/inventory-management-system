@@ -18,11 +18,7 @@ router.use(isAuth);
 
 router.get("/", ProductController.getAllProducts);
 router.get("/summary", ProductController.getProductSummary);
-router.get(
-  "/:id",
-  validateParams(idParamSchema),
-  ProductController.getProductById,
-);
+router.get("/:slug", ProductController.getProductBySlug);
 router.post(
   "/",
   authorize("ADMIN"),

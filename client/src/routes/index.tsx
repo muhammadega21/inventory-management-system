@@ -11,6 +11,7 @@ import WarehousePage from "../pages/master/WarehousePage";
 import UserPage from "../pages/master/UserPage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import DetailProductPage from "../pages/main/DetailProductPage";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "products",
         Component: ProductPage,
+      },
+      {
+        path: "products/:slug",
+        Component: DetailProductPage,
       },
       {
         path: "inventories",

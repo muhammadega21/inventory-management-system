@@ -81,6 +81,7 @@ model Product {
   categoryId Int @map("category_id")
 
   name String
+slug String? @unique 
   sku String @unique
   // barcode String? @unique // EAN
 

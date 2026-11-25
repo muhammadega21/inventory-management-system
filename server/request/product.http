@@ -7,8 +7,8 @@ Content-Type: application/json
 ### Product Summary
 GET {{baseUrl}}/products/summary
 
-### get product by id
-GET {{baseUrl}}/products/1
+### get product by slug
+GET {{baseUrl}}/products/slug/product-1
 Content-Type: application/json
 
 ### get active products

@@ -7,7 +7,7 @@ import {
 import {
   createProduct,
   deleteProduct,
-  getProductById,
+  getProductBySlug,
   getProducts,
   getProductSummary,
   updateProduct,
@@ -29,11 +29,11 @@ export const useGetProductSummary = () => {
   });
 };
 
-export const useGetProductById = (id: number, enabled = true) => {
+export const useGetProductBySlug = (slug: string, enabled = true) => {
   return useQuery({
-    queryKey: ["products", "detail", id],
-    queryFn: () => getProductById(id),
-    enabled: enabled && id > 0,
+    queryKey: ["products", "detail", slug],
+    queryFn: () => getProductBySlug(slug),
+    enabled: enabled && slug !== "", // kode ini digunakan untuk menonaktifkan query jika slug kosong
   });
 };
 

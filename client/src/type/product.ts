@@ -23,6 +23,7 @@ export interface ProductListItem {
   id: number;
   category: ProductCategory;
   name: string;
+  slug: string;
   sku: string;
   unit: string;
   minimum_stock: number;

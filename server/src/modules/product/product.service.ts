@@ -6,6 +6,7 @@ import { prisma } from "../../lib/prisma.js";
 import { createError } from "../../middlewares/errorHandler.middleware.js";
 import { CreateProductInput, UpdateProductInput } from "./product.schema.js";
 import { ProductDetailSelect, ProductListSelect } from "./product.select.js";
+import { generateSlug } from "../../common/utils/random.util.js";
 
 const getPaginatedProducts = async (
   where: any,
@@ -120,9 +121,9 @@ export const ProductService = {
     };
   },
 
-  async findProductById(id: number) {
+  async findProductBySlug(slug: string) {
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { slug },
       select: ProductDetailSelect,
     });
 
@@ -140,7 +141,7 @@ export const ProductService = {
         address: true,
         is_active: true,
         inventories: {
-          where: { productId: id },
+          where: { productId: product.id },
           select: { id: true, quantity: true },
         },
       },
@@ -164,6 +165,7 @@ export const ProductService = {
   },
 
   async createProduct(data: CreateProductInput) {
+    const slug = generateSlug(data.name);
     const category = await prisma.category.findUnique({
       where: { id: data.category_id },
       select: { id: true, is_active: true },
@@ -192,6 +194,7 @@ export const ProductService = {
       data: {
         categoryId: data.category_id,
         name: data.name,
+        slug,
         sku: sku,
         unit: data.unit,
         minimum_stock: data.minimum_stock,
@@ -247,6 +250,21 @@ export const ProductService = {
 
     if (data.name !== undefined) {
       updateData.name = data.name;
+    }
+
+    if (data.name !== existingProduct.name) {
+      const slug = generateSlug(data.name as string);
+
+      const duplicateSlug = await prisma.product.findUnique({
+        where: { slug, NOT: { id } },
+        select: { id: true },
+      });
+
+      if (duplicateSlug) {
+        throw createError("Slug already exists", 400);
+      }
+
+      updateData.slug = slug;
     }
 
     if (data.unit !== undefined) {

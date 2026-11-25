@@ -29,12 +29,12 @@ export const ProductController = {
     }
   },
 
-  async getProductById(req: Request, res: Response, next: NextFunction) {
+  async getProductBySlug(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = Number(req.params.id);
-      const product = await ProductService.findProductById(id);
+      const slug = req.params.slug as string;
+      const product = await ProductService.findProductBySlug(slug);
 
-      sendSuccess(res, "Success get product by id", product, 200);
+      sendSuccess(res, "Success get product by slug", product, 200);
     } catch (error) {
       next(error);
     }

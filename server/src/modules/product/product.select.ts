@@ -7,6 +7,7 @@ export const ProductListSelect = {
     },
   },
   name: true,
+  slug: true,
   sku: true,
   unit: true,
   minimum_stock: true,

@@ -25,8 +25,8 @@ export const getProductSummary = async () => {
   return data;
 };
 
-export const getProductById = async (id: number) => {
-  const { data } = await api.get<ProductDetailResponse>(`/products/${id}`);
+export const getProductBySlug = async (slug: string) => {
+  const { data } = await api.get<ProductDetailResponse>(`/products/${slug}`);
   return data;
 };
 
